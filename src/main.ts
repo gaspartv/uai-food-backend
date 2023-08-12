@@ -16,8 +16,13 @@ async function bootstrap() {
     new FastifyAdapter()
   )
 
-  app.register(cors)
+  /// PROTEÇÃO PARA O CABEÇALHO DA APLICAÇÃO ///
+  await app.register(helmet)
 
+  /// TRATAMENTO DO CORS ///
+  await app.register(cors)
+
+  /// CONFIGURAÇÃO DO UPLOAD DE IMAGENS ///
   app.register(fastifyFileUpload, {
     limits: { fileSize: 1024 * 1024 * 5 },
     useTempFiles: true,
@@ -27,8 +32,18 @@ async function bootstrap() {
     safeFileNames: '/.(jpg|jpeg|png)$/i',
     preserveExtension: true
   })
-  await app.register(helmet)
 
+  /// VALIDAÇÃO ///
+  app.useGlobalPipes(
+    new ValidationPipe({
+      stopAtFirstError: true,
+      whitelist: true,
+      transform: true,
+      transformOptions: { groups: ['transform'] }
+    })
+  )
+
+  /// DOCUMENTAÇÃO ///
   const config = new DocumentBuilder()
     .setTitle('API Uai-food')
     .setDescription('API para a rede de lojas da UAI-food')
@@ -36,16 +51,13 @@ async function bootstrap() {
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
+
   SwaggerModule.setup('docs', app, document)
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      transformOptions: { groups: ['transform'] }
-    })
-  )
+  /// INICIAR O SERVIDOR ///
+  const port = process.env.PORT || 8080
 
-  await app.listen(process.env.PORT, '0.0.0.0')
+  await app.listen(port, '0.0.0.0')
 }
+
 bootstrap()
