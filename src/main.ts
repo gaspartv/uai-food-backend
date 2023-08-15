@@ -8,6 +8,7 @@ import {
 } from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import fastifyFileUpload from 'fastify-file-upload'
+import { RedisModule } from 'fastify-redis'
 import { AppModule } from './app.module'
 
 async function bootstrap() {
@@ -15,6 +16,12 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter()
   )
+
+  // CONFIGURAÇÃO DO REDIS
+  // await app.register(RedisModule, {
+  //   host: process.env.REDIS_HOST || 'localhost',
+  //   port: process.env.PORT_REDIS || 6379
+  // })
 
   /// PROTEÇÃO PARA O CABEÇALHO DA APLICAÇÃO ///
   await app.register(helmet)

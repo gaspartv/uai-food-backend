@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ELanguage {
+  EN_US
+  PT_BR
+
+  @@map("languages")
+}
+
+enum EStatus {
+  REQUEST_RECEIVED
+
+  AWAITING_PAYMENT
+  REJECTED_PAYMENT
+  PAYMENT_ACCEPTED
+
+  IN_PREPARATION
+  WAITING_FOR_DELIVERY
+  OUT_FOR_DELIVERY
+
+  CUSTOMER_DID_NOT_ANSWER
+
+  DELIVERED
+
+  @@map("status")
+}
+
+enum EUserType {
+  GLOBAL_OWNER
+  GLOBAL_MANAGER
+  GLOBAL_EMPLOYEE
+  GLOBAL_TRAINEE
+
+  @@map("usersType")
+}
+
+enum EUserPermission {
+  SELLER_OWNER
+  SELLER_MANAGER
+  SELLER_EMPLOYEE
+  SELLER_TRAINEE
+
+  @@map("usersPermission")
+}
+
+enum ERating {
+  VERY_BAD
+  BAD
+  MEDIUM
+  GOOD
+  VERY_GOOD
+
+  @@map("ratings")
+}
+
+model Address {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  street        String
+  addressNumber String
+  country       String
+  city          String
+  state         String
+  province      String
+  zip_code      String
+  complement    String?
+
+  Store Store?
+
+  User User?
+
+  @@map("addresses")
+}
+
+model User {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  type EUserType?
+
+  balance    BigInt @default(0)
+  nivel      Int
+  experience Int
+
+  firstName     String
+  lastName      String
+  description   String?
+  email         String  @unique
+  login         String  @unique
+  phone         String
+  password_hash String
+  imageUri      String?
+
+  dark_mode Boolean   @default(false)
+  language  ELanguage @default(PT_BR)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  disabledAt DateTime?
+  deletedAt  DateTime?
+
+  Address   Address @relation(fields: [addressId], references: [id])
+  addressId String  @unique @db.Uuid
+
+  Purchases       Purchase[]
+  StorePermission StorePermission[]
+  Star            Star[]
+
+  @@map("users")
+}
+
+model Purchase {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  status EStatus
+
+  rating ERating?
+
+  totalPrice BigInt @default(0)
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @db.Uuid
+
+  store   Store  @relation(fields: [storeId], references: [id])
+  storeId String @db.Uuid
+
+  Star Star?
+
+  @@map("purchases")
+}
+
+model StorePermission {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  type EUserPermission?
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String? @db.Uuid
+
+  Store   Store?  @relation(fields: [storeId], references: [id])
+  storeId String? @db.Uuid
+
+  @@map("store-permission")
+}
+
+model Store {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  corporate_name String @unique
+  trading_name   String
+  cnpj           String @unique
+  identifier     String @unique
+  email          String
+  phone          String
+  whatsapp       String
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  disabledAt DateTime?
+  deletedAt  DateTime?
+
+  Address   Address @relation(fields: [addressId], references: [id])
+  addressId String  @unique @db.Uuid
+
+  Purchase        Purchase[]
+  Star            Star[]
+  Category        Category[]
+  UsersPermission StorePermission[]
+
+  @@map("stores")
+}
+
+model Star {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  value   Int     @default(5)
+  comment String?
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String @db.Uuid
+
+  Purchase   Purchase @relation(fields: [purchaseId], references: [id])
+  purchaseId String   @unique @db.Uuid
+
+  Store   Store  @relation(fields: [storeId], references: [id])
+  storeId String @db.Uuid
+
+  @@map("stars")
+}
+
+model Category {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  name        String @unique
+  description String
+
+  Store Store[]
+
+  @@map("categories")
+}
