@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "users" ALTER COLUMN "nivel" SET DEFAULT 1,
+ALTER COLUMN "experience" SET DEFAULT 0;

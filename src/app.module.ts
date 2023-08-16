@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD, APP_PIPE } from '@nestjs/core'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { load } from './config/env/load.env'
+import { PrismaModule } from './config/env/prisma/prisma.module'
 import { EnvService } from './config/env/service.env'
 import { validate } from './config/env/validate.env'
 import { AddressesModule } from './modules/addresses/addresses.module'
@@ -31,7 +32,8 @@ import { UsersModule } from './modules/users/users.module'
     AddressesModule,
     StoresModule,
     CategoriesModule,
-    StorePermissionsModule
+    StorePermissionsModule,
+    PrismaModule
   ],
   controllers: [],
   providers: [

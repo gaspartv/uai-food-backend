@@ -1,7 +1,3 @@
-import { Type } from 'class-transformer'
-import { StoreWithNotRelationsEntity } from '../../stores/entities/store.entity'
-import { UserWithNotRelationsEntity } from '../../users/entities/user.entity'
-
 export class AddressWithNotRelationsEntity {
   id: string
   street: string
@@ -14,10 +10,4 @@ export class AddressWithNotRelationsEntity {
   complement?: string
 }
 
-export class AddressEntity extends AddressWithNotRelationsEntity {
-  @Type(() => StoreWithNotRelationsEntity)
-  Store?: StoreWithNotRelationsEntity
-
-  @Type(() => UserWithNotRelationsEntity)
-  User?: UserWithNotRelationsEntity
-}
+export class AddressEntity extends AddressWithNotRelationsEntity {}
