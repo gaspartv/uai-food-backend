@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { PCTransaction } from '../../../../config/env/prisma/prisma.interface'
+import { UserEntity } from '../../entities/user.entity'
 import {
   IOptionsFind,
   IOptionsFindMany
-} from '../../../../common/interfaces/options-repository.interface'
-import { PCTransaction } from '../../../../config/env/prisma/prisma.interface'
-import { UserEntity } from '../../entities/user.entity'
+} from '../../interfaces/options.interface'
 import { UserRepository } from '../user.repository'
 
 @Injectable()
@@ -17,7 +17,7 @@ export class UserPrismaRepository implements UserRepository {
     StorePermissions: { where: { deletedAt: null, disabledAt: null } }
   }
 
-  async create(
+  async createUser(
     tx: PCTransaction,
     data: Prisma.UserUncheckedCreateInput
   ): Promise<UserEntity> {
@@ -30,7 +30,7 @@ export class UserPrismaRepository implements UserRepository {
     })
   }
 
-  async update(
+  async updateUserById(
     tx: PCTransaction,
     id: string,
     data: Prisma.UserUncheckedUpdateInput
@@ -38,11 +38,25 @@ export class UserPrismaRepository implements UserRepository {
     return await tx.user.update({ where: { id }, data, include: this.include })
   }
 
-  async find(
+  async findUserByEmail(tx: PCTransaction, email: string): Promise<UserEntity> {
+    return await tx.user.findUnique({ where: { email }, include: this.include })
+  }
+
+  async findUserByLogin(tx: PCTransaction, login: string): Promise<UserEntity> {
+    return await tx.user.findUnique({ where: { login }, include: this.include })
+  }
+
+  async findUserById(tx: PCTransaction, id: string): Promise<UserEntity> {
+    return await tx.user.findFirst({
+      where: { id, deletedAt: null },
+      include: this.include
+    })
+  }
+
+  async countUsers(
     tx: PCTransaction,
-    id: string,
-    options: IOptionsFind
-  ): Promise<UserEntity> {
+    { skip, take, ...options }: IOptionsFindMany
+  ): Promise<number> {
     const disabledAt =
       options.disabledAt === true
         ? { NOT: { disabledAt: null } }
@@ -50,13 +64,12 @@ export class UserPrismaRepository implements UserRepository {
         ? { disabledAt: null }
         : { disabledAt: undefined }
 
-    return await tx.user.findFirstOrThrow({
-      where: { id, deletedAt: null, ...disabledAt },
-      include: this.include
+    return await tx.user.count({
+      where: { deletedAt: null, ...disabledAt }
     })
   }
 
-  async findAllPagination(
+  async findAllUsersForPagination(
     tx: PCTransaction,
     { skip, take, ...options }: IOptionsFindMany
   ): Promise<UserEntity[]> {
@@ -75,7 +88,7 @@ export class UserPrismaRepository implements UserRepository {
     })
   }
 
-  async findAll(
+  async findAllUsers(
     tx: PCTransaction,
     options: IOptionsFind
   ): Promise<UserEntity[]> {
@@ -92,7 +105,7 @@ export class UserPrismaRepository implements UserRepository {
     })
   }
 
-  async disable(tx: PCTransaction, id: string): Promise<UserEntity> {
+  async disableUserById(tx: PCTransaction, id: string): Promise<UserEntity> {
     return await tx.user.update({
       where: { id },
       data: { disabledAt: new Date() },
@@ -100,7 +113,7 @@ export class UserPrismaRepository implements UserRepository {
     })
   }
 
-  async enable(tx: PCTransaction, id: string): Promise<UserEntity> {
+  async enableUserById(tx: PCTransaction, id: string): Promise<UserEntity> {
     return await tx.user.update({
       where: { id },
       data: { disabledAt: null },
@@ -108,7 +121,7 @@ export class UserPrismaRepository implements UserRepository {
     })
   }
 
-  async delete(tx: PCTransaction, id: string): Promise<UserEntity> {
+  async deleteUserById(tx: PCTransaction, id: string): Promise<UserEntity> {
     return await tx.user.update({
       where: { id },
       data: { disabledAt: new Date(), deletedAt: new Date() },

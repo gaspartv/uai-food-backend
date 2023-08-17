@@ -31,6 +31,9 @@ export class EnvironmentVariables {
   FRONTEND_URL: string
 
   @IsString()
+  BACKEND_URL: string
+
+  @IsString()
   JWT_EXPIRES_IN: string
 }
 
@@ -49,6 +52,8 @@ export const load = [
     PORT_REDIS: process.env.PORT_REDIS,
 
     FRONTEND_URL: process.env.FRONTEND_URL,
+
+    BACKEND_URL: process.env.BACKEND_URL,
 
     JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN
   }))

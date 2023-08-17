@@ -1,12 +1,13 @@
 import { ELanguage } from '@prisma/client'
+import { Type } from 'class-transformer'
 import {
   IsBoolean,
   IsEmail,
   IsEnum,
-  IsObject,
   IsOptional,
   IsPhoneNumber,
-  IsString
+  IsString,
+  ValidateNested
 } from 'class-validator'
 import { CreateAddressDto } from '../../addresses/dto/create-address.dto'
 
@@ -39,6 +40,7 @@ export class CreateUserDto {
   @IsEnum(ELanguage)
   language: ELanguage
 
-  @IsObject()
+  @ValidateNested()
+  @Type(() => CreateAddressDto)
   address: CreateAddressDto
 }

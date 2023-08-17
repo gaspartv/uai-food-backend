@@ -1,11 +1,15 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
-import { plainToInstance } from 'class-transformer'
-import { IOptionsFindMany } from '../../common/interfaces/options-repository.interface'
 import { OptionalParseBollPipe } from '../../common/pipes/optional-parse-boolean.pipe'
 import { OptionalParseIntPipe } from '../../common/pipes/optional-parse-int.pipe'
+import { ParseUuidPipe } from '../../common/pipes/parse-uuid.pipe'
+import { EnvService } from '../../config/env/service.env'
 import { CreateUserDto } from './dto/create-user.dto'
-import { UserEntity } from './entities/user.entity'
+import {
+  ResponseUserDto,
+  ResponseUserPaginationDto
+} from './dto/response-user.dto'
+import { IOptionsFindMany } from './interfaces/options.interface'
 import { UserResponseMapper } from './mappers/user.response.mapper'
 import { UsersService } from './users.service'
 
@@ -13,55 +17,69 @@ import { UsersService } from './users.service'
 export class UsersController {
   constructor(
     private readonly prisma: PrismaClient,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly envService: EnvService
   ) {}
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
+  async createUser(@Body() dto: CreateUserDto): Promise<ResponseUserDto> {
     const user = await this.prisma.$transaction(async (tx) => {
-      return await this.usersService.create(tx, createUserDto)
+      return await this.usersService.createUser(tx, dto)
     })
-
-    return plainToInstance(UserEntity, user)
+    return new UserResponseMapper().handle(user)
   }
 
   @Get()
-  async findAllPagination(
+  async findAllUsersForPagination(
     @Query('disabled', new OptionalParseBollPipe())
     disabledAt: boolean | undefined,
     @Query('skip', new OptionalParseIntPipe()) skip = 0,
     @Query('take', new OptionalParseIntPipe()) take = 20
-  ) {
-    const users = await this.prisma.$transaction(async (tx) => {
-      const options: IOptionsFindMany = {
-        disabledAt,
-        skip,
-        take
-      }
+  ): Promise<ResponseUserPaginationDto> {
+    const options: IOptionsFindMany = {
+      disabledAt,
+      skip,
+      take
+    }
 
-      return await this.usersService.findAllPagination(tx, options)
-    })
+    const users = await this.usersService.findAllUsersForPagination(
+      this.prisma,
+      options
+    )
 
-    const results = new UserResponseMapper().handle(users)
+    const usersCount = await this.usersService.countUsers(this.prisma, options)
+
+    const results = users.map((user) => new UserResponseMapper().handle(user))
 
     return {
       limit: take,
       page: skip,
-      total: results.length,
-      next: '',
-      previous: '',
+      total: usersCount,
+      next:
+        options.skip < usersCount - options.take
+          ? this.envService.env.BACKEND_URL +
+            `/users?skip${options.skip + 1}&take=${
+              options.take
+            }&disabled=${disabledAt}`
+          : null,
+      previous:
+        options.skip > 0
+          ? this.envService.env.BACKEND_URL +
+            `/users?skip${options.skip - 1}&take=${
+              options.take
+            }&disabled=${disabledAt}`
+          : null,
       results
     }
   }
 
-  // @Get(':id')
-  // async findOne(@Param('id') id: string) {
-  //   const user = await this.prisma.$transaction(async (tx) => {
-  //     return await this.usersService.findOne(tx, id)
-  //   })
-
-  //   return plainToInstance(UserEntity, user)
-  // }
+  @Get(':id')
+  async findOne(@Param('id', new ParseUuidPipe()) id: string) {
+    const user = await this.prisma.$transaction(async (tx) => {
+      return await this.usersService.findUserByIdOrThrow(tx, id)
+    })
+    return new UserResponseMapper().handle(user)
+  }
 
   // @Patch(':id')
   // async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

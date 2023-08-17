@@ -10,6 +10,7 @@ export class AddressPrismaRepository implements AddressRepository {
     tx: PCTransaction,
     data: Prisma.AddressUncheckedCreateInput
   ): Promise<AddressEntity> {
+    console.log(data)
     return await tx.address.create({ data })
   }
 }
