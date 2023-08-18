@@ -1,5 +1,14 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query
+} from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
+import { plainToInstance } from 'class-transformer'
 import { OptionalParseBollPipe } from '../../common/pipes/optional-parse-boolean.pipe'
 import { OptionalParseIntPipe } from '../../common/pipes/optional-parse-int.pipe'
 import { ParseUuidPipe } from '../../common/pipes/parse-uuid.pipe'
@@ -9,7 +18,12 @@ import {
   ResponseUserDto,
   ResponseUserPaginationDto
 } from './dto/response-user.dto'
-import { IOptionsFindMany } from './interfaces/options.interface'
+import { UpdateUserDto } from './dto/update-user.dto'
+import { UserEntity } from './entities/user.entity'
+import {
+  IFindOptions,
+  IPaginationOptions
+} from './interfaces/options.interface'
 import { UserResponseMapper } from './mappers/user.response.mapper'
 import { UsersService } from './users.service'
 
@@ -33,11 +47,14 @@ export class UsersController {
   async findAllUsersForPagination(
     @Query('disabled', new OptionalParseBollPipe())
     disabledAt: boolean | undefined,
+    @Query('deleted', new OptionalParseBollPipe())
+    deletedAt: boolean | undefined,
     @Query('skip', new OptionalParseIntPipe()) skip = 0,
     @Query('take', new OptionalParseIntPipe()) take = 20
   ): Promise<ResponseUserPaginationDto> {
-    const options: IOptionsFindMany = {
+    const options: IPaginationOptions = {
       disabledAt,
+      deletedAt,
       skip,
       take
     }
@@ -74,21 +91,35 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findOne(@Param('id', new ParseUuidPipe()) id: string) {
+  async findOne(
+    @Query('disabled', new OptionalParseBollPipe())
+    disabledAt: boolean | undefined,
+    @Query('deleted', new OptionalParseBollPipe())
+    deletedAt: boolean | undefined,
+    @Param('id', new ParseUuidPipe()) id: string
+  ) {
+    const options: IFindOptions = {
+      disabledAt,
+      deletedAt
+    }
+
     const user = await this.prisma.$transaction(async (tx) => {
-      return await this.usersService.findUserByIdOrThrow(tx, id)
+      return await this.usersService.findUserByIdOrThrow(tx, id, options)
     })
     return new UserResponseMapper().handle(user)
   }
 
-  // @Patch(':id')
-  // async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   const user = await this.prisma.$transaction(async (tx) => {
-  //     return await this.usersService.update(tx, id, updateUserDto)
-  //   })
+  @Patch(':id')
+  async updateUserById(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto
+  ) {
+    const user = await this.prisma.$transaction(async (tx) => {
+      return await this.usersService.updateUserById(tx, id, updateUserDto)
+    })
 
-  //   return plainToInstance(UserEntity, user)
-  // }
+    return plainToInstance(UserEntity, user)
+  }
 
   // @Delete(':id')
   // async delete(@Param('id') id: string) {

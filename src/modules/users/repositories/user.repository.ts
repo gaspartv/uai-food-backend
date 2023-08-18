@@ -1,7 +1,10 @@
 import { Prisma } from '@prisma/client'
 import { PCTransaction } from '../../../config/env/prisma/prisma.interface'
 import { UserEntity } from '../entities/user.entity'
-import { IOptionsFind, IOptionsFindMany } from '../interfaces/options.interface'
+import {
+  IFindOptions,
+  IPaginationOptions
+} from '../interfaces/options.interface'
 
 export abstract class UserRepository {
   abstract createUser(
@@ -17,29 +20,35 @@ export abstract class UserRepository {
 
   abstract findUserByEmail(
     tx: PCTransaction,
-    email: string
+    email: string,
+    options: IFindOptions
   ): Promise<UserEntity>
 
   abstract findUserByLogin(
     tx: PCTransaction,
-    login: string
+    login: string,
+    options: IFindOptions
   ): Promise<UserEntity>
 
-  abstract findUserById(tx: PCTransaction, id: string): Promise<UserEntity>
+  abstract findUserById(
+    tx: PCTransaction,
+    id: string,
+    options: IFindOptions
+  ): Promise<UserEntity>
 
   abstract countUsers(
     tx: PCTransaction,
-    { skip, take, ...options }: IOptionsFindMany
+    { skip, take, ...options }: IPaginationOptions
   ): Promise<number>
 
   abstract findAllUsersForPagination(
     tx: PCTransaction,
-    options: IOptionsFindMany
+    options: IPaginationOptions
   ): Promise<UserEntity[]>
 
   abstract findAllUsers(
     tx: PCTransaction,
-    options: IOptionsFind
+    options: IFindOptions
   ): Promise<UserEntity[]>
 
   abstract disableUserById(tx: PCTransaction, id: string): Promise<UserEntity>

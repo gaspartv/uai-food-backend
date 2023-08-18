@@ -10,7 +10,10 @@ import { AddressesService } from '../addresses/addresses.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserEntity } from './entities/user.entity'
-import { IOptionsFind, IOptionsFindMany } from './interfaces/options.interface'
+import {
+  IFindOptions,
+  IPaginationOptions
+} from './interfaces/options.interface'
 import { UserRepository } from './repositories/user.repository'
 
 @Injectable()
@@ -25,8 +28,14 @@ export class UsersService {
     tx: PCTransaction,
     { address, password, ...dto }: CreateUserDto
   ): Promise<UserEntity> {
-    await this.verifyUserExistsByEmail(tx, dto.email)
-    await this.verifyUserExistsByLogin(tx, dto.login)
+    await this.verifyUserExistsByEmail(tx, dto.email, {
+      deletedAt: undefined,
+      disabledAt: undefined
+    })
+    await this.verifyUserExistsByLogin(tx, dto.login, {
+      deletedAt: undefined,
+      disabledAt: undefined
+    })
 
     const addressCreate = await this.addressesService.create(tx, address)
 
@@ -45,23 +54,42 @@ export class UsersService {
   async updateUserById(
     tx: PCTransaction,
     id: string,
-    updateUserDto: UpdateUserDto
-  ) {
-    return await this.userRepository.updateUserById(tx, id, updateUserDto)
+    { address, password, ...dto }: UpdateUserDto
+  ): Promise<UserEntity> {
+    console.log(address)
+    if (dto.email) {
+      await this.verifyUserExistsByEmail(
+        tx,
+        dto.email,
+        { deletedAt: undefined, disabledAt: undefined },
+        id
+      )
+    }
+
+    if (dto.login) {
+      await this.verifyUserExistsByLogin(
+        tx,
+        dto.login,
+        { deletedAt: undefined, disabledAt: undefined },
+        id
+      )
+    }
+
+    return await this.userRepository.updateUserById(tx, id, dto)
   }
 
-  async countUsers(tx: PCTransaction, options: IOptionsFindMany) {
+  async countUsers(tx: PCTransaction, options: IPaginationOptions) {
     return await this.userRepository.countUsers(tx, options)
   }
 
   async findAllUsersForPagination(
     tx: PCTransaction,
-    options: IOptionsFindMany
+    options: IPaginationOptions
   ) {
     return await this.userRepository.findAllUsersForPagination(tx, options)
   }
 
-  async findAllUsers(tx: PCTransaction, options: IOptionsFind) {
+  async findAllUsers(tx: PCTransaction, options: IFindOptions) {
     return await this.userRepository.findAllUsers(tx, options)
   }
 
@@ -82,9 +110,10 @@ export class UsersService {
   async verifyUserExistsByEmail(
     tx: PCTransaction,
     email: string,
+    options: IFindOptions,
     currentUserId?: string
   ) {
-    const user = await this.findUserByEmail(tx, email)
+    const user = await this.findUserByEmail(tx, email, options)
 
     if (user && user.id !== currentUserId) {
       throw new ConflictException('Email already registered.')
@@ -94,48 +123,73 @@ export class UsersService {
   async verifyUserExistsByLogin(
     tx: PCTransaction,
     login: string,
+    options: IFindOptions,
     currentUserId?: string
   ) {
-    const user = await this.findUserByLogin(tx, login)
+    const user = await this.findUserByLogin(tx, login, options)
 
     if (user && user.id !== currentUserId) {
       throw new ConflictException('Login already registered.')
     }
   }
 
-  async verifyUserExistsById(tx: PCTransaction, id: string) {
-    if (await this.findUserById(tx, id)) {
+  async verifyUserExistsById(
+    tx: PCTransaction,
+    id: string,
+    options: IFindOptions
+  ) {
+    if (await this.findUserById(tx, id, options)) {
       throw new ConflictException('ID already registered.')
     }
   }
 
-  async findUserByEmailOrThrow(tx: PCTransaction, email: string) {
-    const user = await this.findUserByEmail(tx, email)
+  async findUserByEmailOrThrow(
+    tx: PCTransaction,
+    email: string,
+    options: IFindOptions
+  ) {
+    const user = await this.findUserByEmail(tx, email, options)
     if (!user) throw new NotFoundException('User not found.')
     return user
   }
 
-  async findUserByLoginOrThrow(tx: PCTransaction, login: string) {
-    const user = await this.findUserByLogin(tx, login)
+  async findUserByLoginOrThrow(
+    tx: PCTransaction,
+    login: string,
+    options: IFindOptions
+  ) {
+    const user = await this.findUserByLogin(tx, login, options)
     if (!user) throw new NotFoundException('User not found.')
     return user
   }
 
-  async findUserByIdOrThrow(tx: PCTransaction, id: string) {
-    const user = await this.findUserById(tx, id)
+  async findUserByIdOrThrow(
+    tx: PCTransaction,
+    id: string,
+    options: IFindOptions
+  ) {
+    const user = await this.findUserById(tx, id, options)
     if (!user) throw new NotFoundException('User not found.')
     return user
   }
 
-  async findUserByEmail(tx: PCTransaction, email: string) {
-    return await this.userRepository.findUserByEmail(tx, email)
+  async findUserByEmail(
+    tx: PCTransaction,
+    email: string,
+    options: IFindOptions
+  ) {
+    return await this.userRepository.findUserByEmail(tx, email, options)
   }
 
-  async findUserByLogin(tx: PCTransaction, login: string) {
-    return await this.userRepository.findUserByLogin(tx, login)
+  async findUserByLogin(
+    tx: PCTransaction,
+    login: string,
+    options: IFindOptions
+  ) {
+    return await this.userRepository.findUserByLogin(tx, login, options)
   }
 
-  async findUserById(tx: PCTransaction, id: string) {
-    return await this.userRepository.findUserById(tx, id)
+  async findUserById(tx: PCTransaction, id: string, options: IFindOptions) {
+    return await this.userRepository.findUserById(tx, id, options)
   }
 }

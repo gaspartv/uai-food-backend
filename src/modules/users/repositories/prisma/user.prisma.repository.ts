@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { PCTransaction } from '../../../../config/env/prisma/prisma.interface'
+import { whereGenerator } from '../../../../utils/where-generator.utils'
 import { UserEntity } from '../../entities/user.entity'
 import {
-  IOptionsFind,
-  IOptionsFindMany
+  IFindOptions,
+  IPaginationOptions
 } from '../../interfaces/options.interface'
 import { UserRepository } from '../user.repository'
 
@@ -38,50 +39,64 @@ export class UserPrismaRepository implements UserRepository {
     return await tx.user.update({ where: { id }, data, include: this.include })
   }
 
-  async findUserByEmail(tx: PCTransaction, email: string): Promise<UserEntity> {
-    return await tx.user.findUnique({ where: { email }, include: this.include })
-  }
+  async findUserByEmail(
+    tx: PCTransaction,
+    email: string,
+    options: IFindOptions
+  ): Promise<UserEntity> {
+    const { deletedAt, disabledAt } = whereGenerator(options)
 
-  async findUserByLogin(tx: PCTransaction, login: string): Promise<UserEntity> {
-    return await tx.user.findUnique({ where: { login }, include: this.include })
-  }
-
-  async findUserById(tx: PCTransaction, id: string): Promise<UserEntity> {
     return await tx.user.findFirst({
-      where: { id, deletedAt: null },
+      where: { ...deletedAt, ...disabledAt, email },
+      include: this.include
+    })
+  }
+
+  async findUserByLogin(
+    tx: PCTransaction,
+    login: string,
+    options: IFindOptions
+  ): Promise<UserEntity> {
+    const { deletedAt, disabledAt } = whereGenerator(options)
+
+    return await tx.user.findFirst({
+      where: { ...deletedAt, ...disabledAt, login },
+      include: this.include
+    })
+  }
+
+  async findUserById(
+    tx: PCTransaction,
+    id: string,
+    options: IFindOptions
+  ): Promise<UserEntity> {
+    const { deletedAt, disabledAt } = whereGenerator(options)
+
+    return await tx.user.findFirst({
+      where: { ...deletedAt, ...disabledAt, id },
       include: this.include
     })
   }
 
   async countUsers(
     tx: PCTransaction,
-    { skip, take, ...options }: IOptionsFindMany
+    { skip, take, ...options }: IPaginationOptions
   ): Promise<number> {
-    const disabledAt =
-      options.disabledAt === true
-        ? { NOT: { disabledAt: null } }
-        : options.disabledAt === false
-        ? { disabledAt: null }
-        : { disabledAt: undefined }
+    const { deletedAt, disabledAt } = whereGenerator(options)
 
     return await tx.user.count({
-      where: { deletedAt: null, ...disabledAt }
+      where: { ...deletedAt, ...disabledAt }
     })
   }
 
   async findAllUsersForPagination(
     tx: PCTransaction,
-    { skip, take, ...options }: IOptionsFindMany
+    { skip, take, ...options }: IPaginationOptions
   ): Promise<UserEntity[]> {
-    const disabledAt =
-      options.disabledAt === true
-        ? { NOT: { disabledAt: null } }
-        : options.disabledAt === false
-        ? { disabledAt: null }
-        : { disabledAt: undefined }
+    const { deletedAt, disabledAt } = whereGenerator(options)
 
     return await tx.user.findMany({
-      where: { deletedAt: null, ...disabledAt },
+      where: { ...deletedAt, ...disabledAt },
       skip,
       take,
       include: this.include
@@ -90,17 +105,12 @@ export class UserPrismaRepository implements UserRepository {
 
   async findAllUsers(
     tx: PCTransaction,
-    options: IOptionsFind
+    options: IFindOptions
   ): Promise<UserEntity[]> {
-    const disabledAt =
-      options.disabledAt === true
-        ? { NOT: { disabledAt: null } }
-        : options.disabledAt === false
-        ? { disabledAt: null }
-        : { disabledAt: undefined }
+    const { deletedAt, disabledAt } = whereGenerator(options)
 
     return await tx.user.findMany({
-      where: { deletedAt: null, ...disabledAt },
+      where: { ...deletedAt, ...disabledAt },
       include: this.include
     })
   }
