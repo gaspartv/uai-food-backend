@@ -7,8 +7,10 @@ import {
   Post,
   Query
 } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { PrismaClient } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
+import { IsPublic } from '../../common/decorators/is-public.decorator'
 import { OptionalParseBollPipe } from '../../common/pipes/optional-parse-boolean.pipe'
 import { OptionalParseIntPipe } from '../../common/pipes/optional-parse-int.pipe'
 import { ParseUuidPipe } from '../../common/pipes/parse-uuid.pipe'
@@ -27,6 +29,7 @@ import {
 import { UserResponseMapper } from './mappers/user.response.mapper'
 import { UsersService } from './users.service'
 
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(
@@ -35,6 +38,7 @@ export class UsersController {
     private readonly envService: EnvService
   ) {}
 
+  @IsPublic()
   @Post()
   async createUser(@Body() dto: CreateUserDto): Promise<ResponseUserDto> {
     const user = await this.prisma.$transaction(async (tx) => {

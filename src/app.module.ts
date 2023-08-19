@@ -11,6 +11,7 @@ import { validate } from './config/env/validate.env'
 import { AddressesModule } from './modules/addresses/addresses.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { JwtAuthGuard } from './modules/auth/guards/auth-jwt.guard'
+import { CheckPasswordGuard } from './modules/auth/guards/check-password.guard'
 import { CategoriesModule } from './modules/categories/categories.module'
 import { PurchasesModule } from './modules/purchases/purchases.module'
 import { StarsModule } from './modules/stars/stars.module'
@@ -37,6 +38,8 @@ import { UsersModule } from './modules/users/users.module'
       validate,
       validationOptions: { allowUnknown: false }
     }),
+    PrismaModule,
+
     UsersModule,
     StarsModule,
     PurchasesModule,
@@ -44,15 +47,15 @@ import { UsersModule } from './modules/users/users.module'
     StoresModule,
     CategoriesModule,
     StorePermissionsModule,
-    PrismaModule,
     AuthModule
   ],
   controllers: [],
   providers: [
-    EnvService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: CheckPasswordGuard },
     { provide: APP_PIPE, useClass: ValidationPipe },
-    { provide: APP_GUARD, useClass: JwtAuthGuard }
+    EnvService
   ]
 })
 export class AppModule {}
