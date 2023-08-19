@@ -4,7 +4,7 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { hash } from 'bcryptjs'
-import { PCTransaction } from '../../config/env/prisma/prisma.interface'
+import { PrismaClientTransaction } from '../../config/env/prisma/prisma.interface'
 import { EnvService } from '../../config/env/service.env'
 import { AddressesService } from '../addresses/addresses.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -25,7 +25,7 @@ export class UsersService {
   ) {}
 
   async createUser(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     { address, password, ...dto }: CreateUserDto
   ): Promise<UserEntity> {
     await this.verifyUserExistsByEmail(tx, dto.email, {
@@ -52,11 +52,10 @@ export class UsersService {
   }
 
   async updateUserById(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     id: string,
     { address, password, ...dto }: UpdateUserDto
   ): Promise<UserEntity> {
-    console.log(address)
     if (dto.email) {
       await this.verifyUserExistsByEmail(
         tx,
@@ -78,37 +77,37 @@ export class UsersService {
     return await this.userRepository.updateUserById(tx, id, dto)
   }
 
-  async countUsers(tx: PCTransaction, options: IPaginationOptions) {
+  async countUsers(tx: PrismaClientTransaction, options: IPaginationOptions) {
     return await this.userRepository.countUsers(tx, options)
   }
 
   async findAllUsersForPagination(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     options: IPaginationOptions
   ) {
     return await this.userRepository.findAllUsersForPagination(tx, options)
   }
 
-  async findAllUsers(tx: PCTransaction, options: IFindOptions) {
+  async findAllUsers(tx: PrismaClientTransaction, options: IFindOptions) {
     return await this.userRepository.findAllUsers(tx, options)
   }
 
-  async disableUserById(tx: PCTransaction, id: string) {
+  async disableUserById(tx: PrismaClientTransaction, id: string) {
     return await this.userRepository.disableUserById(tx, id)
   }
 
-  async enableUserById(tx: PCTransaction, id: string) {
+  async enableUserById(tx: PrismaClientTransaction, id: string) {
     return await this.userRepository.enableUserById(tx, id)
   }
 
-  async deleteUserById(tx: PCTransaction, id: string) {
+  async deleteUserById(tx: PrismaClientTransaction, id: string) {
     return await this.userRepository.deleteUserById(tx, id)
   }
 
   // VERIFY //
 
   async verifyUserExistsByEmail(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     email: string,
     options: IFindOptions,
     currentUserId?: string
@@ -121,7 +120,7 @@ export class UsersService {
   }
 
   async verifyUserExistsByLogin(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     login: string,
     options: IFindOptions,
     currentUserId?: string
@@ -134,7 +133,7 @@ export class UsersService {
   }
 
   async verifyUserExistsById(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     id: string,
     options: IFindOptions
   ) {
@@ -144,7 +143,7 @@ export class UsersService {
   }
 
   async findUserByEmailOrThrow(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     email: string,
     options: IFindOptions
   ) {
@@ -154,7 +153,7 @@ export class UsersService {
   }
 
   async findUserByLoginOrThrow(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     login: string,
     options: IFindOptions
   ) {
@@ -164,7 +163,7 @@ export class UsersService {
   }
 
   async findUserByIdOrThrow(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     id: string,
     options: IFindOptions
   ) {
@@ -174,7 +173,7 @@ export class UsersService {
   }
 
   async findUserByEmail(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     email: string,
     options: IFindOptions
   ) {
@@ -182,14 +181,18 @@ export class UsersService {
   }
 
   async findUserByLogin(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     login: string,
     options: IFindOptions
   ) {
     return await this.userRepository.findUserByLogin(tx, login, options)
   }
 
-  async findUserById(tx: PCTransaction, id: string, options: IFindOptions) {
+  async findUserById(
+    tx: PrismaClientTransaction,
+    id: string,
+    options: IFindOptions
+  ) {
     return await this.userRepository.findUserById(tx, id, options)
   }
 }

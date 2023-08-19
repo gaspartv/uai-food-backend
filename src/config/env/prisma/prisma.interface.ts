@@ -3,4 +3,4 @@ import * as runtime from '@prisma/client/runtime/library'
 
 export type PrismaTransaction = Omit<PrismaClient, runtime.ITXClientDenyList>
 
-export type PCTransaction = PrismaTransaction | PrismaClient
+export type PrismaClientTransaction = PrismaTransaction | PrismaClient

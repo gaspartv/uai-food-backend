@@ -14,6 +14,7 @@ import { UsersService } from './users.service'
     UsersService,
     EnvService,
     { provide: UserRepository, useClass: UserPrismaRepository }
-  ]
+  ],
+  exports: [UsersService]
 })
 export class UsersModule {}

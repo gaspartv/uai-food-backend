@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { PCTransaction } from '../../../../config/env/prisma/prisma.interface'
+import { PrismaClientTransaction } from '../../../../config/env/prisma/prisma.interface'
 import { whereGenerator } from '../../../../utils/where-generator.utils'
 import { UserEntity } from '../../entities/user.entity'
 import {
@@ -19,7 +19,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async createUser(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     data: Prisma.UserUncheckedCreateInput
   ): Promise<UserEntity> {
     const userCreate = await tx.user.create({ data })
@@ -32,7 +32,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async updateUserById(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     id: string,
     data: Prisma.UserUncheckedUpdateInput
   ): Promise<UserEntity> {
@@ -40,7 +40,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async findUserByEmail(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     email: string,
     options: IFindOptions
   ): Promise<UserEntity> {
@@ -53,7 +53,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async findUserByLogin(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     login: string,
     options: IFindOptions
   ): Promise<UserEntity> {
@@ -66,7 +66,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async findUserById(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     id: string,
     options: IFindOptions
   ): Promise<UserEntity> {
@@ -79,7 +79,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async countUsers(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     { skip, take, ...options }: IPaginationOptions
   ): Promise<number> {
     const { deletedAt, disabledAt } = whereGenerator(options)
@@ -90,7 +90,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async findAllUsersForPagination(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     { skip, take, ...options }: IPaginationOptions
   ): Promise<UserEntity[]> {
     const { deletedAt, disabledAt } = whereGenerator(options)
@@ -104,7 +104,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async findAllUsers(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     options: IFindOptions
   ): Promise<UserEntity[]> {
     const { deletedAt, disabledAt } = whereGenerator(options)
@@ -115,7 +115,10 @@ export class UserPrismaRepository implements UserRepository {
     })
   }
 
-  async disableUserById(tx: PCTransaction, id: string): Promise<UserEntity> {
+  async disableUserById(
+    tx: PrismaClientTransaction,
+    id: string
+  ): Promise<UserEntity> {
     return await tx.user.update({
       where: { id },
       data: { disabledAt: new Date() },
@@ -123,7 +126,10 @@ export class UserPrismaRepository implements UserRepository {
     })
   }
 
-  async enableUserById(tx: PCTransaction, id: string): Promise<UserEntity> {
+  async enableUserById(
+    tx: PrismaClientTransaction,
+    id: string
+  ): Promise<UserEntity> {
     return await tx.user.update({
       where: { id },
       data: { disabledAt: null },
@@ -131,7 +137,10 @@ export class UserPrismaRepository implements UserRepository {
     })
   }
 
-  async deleteUserById(tx: PCTransaction, id: string): Promise<UserEntity> {
+  async deleteUserById(
+    tx: PrismaClientTransaction,
+    id: string
+  ): Promise<UserEntity> {
     return await tx.user.update({
       where: { id },
       data: { disabledAt: new Date(), deletedAt: new Date() },

@@ -1,5 +1,6 @@
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
+import fastifyStatic from '@fastify/static'
 import { NestInterceptor, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import {
@@ -8,6 +9,7 @@ import {
 } from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import fastifyFileUpload from 'fastify-file-upload'
+import { join } from 'path'
 import { AppModule } from './app.module'
 import { TransformationInterceptor } from './utils/http-response/http-global-interceptor'
 import { PrismaClientExceptionFilter } from './utils/prisma-client-exception/prisma-client-exception.filter'
@@ -41,6 +43,11 @@ async function bootstrap() {
     preserveExtension: true
   })
 
+  app.register(fastifyStatic, {
+    root: join(__dirname, '..', '..', 'tmp'),
+    prefix: '/img/'
+  })
+
   /// VALIDAÇÃO ///
   app.useGlobalPipes(
     new ValidationPipe({
@@ -69,9 +76,11 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document)
 
   /// INICIAR O SERVIDOR ///
-  const port = process.env.PORT || 8080
-
-  await app.listen(port, '0.0.0.0')
+  await app
+    .listen(process.env.PORT, '0.0.0.0')
+    .then(() =>
+      console.log(`baseURL: ${process.env.BACKEND_URL}:${process.env.PORT}`)
+    )
 }
 
 bootstrap()

@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client'
-import { PCTransaction } from '../../../config/env/prisma/prisma.interface'
+import { PrismaClientTransaction } from '../../../config/env/prisma/prisma.interface'
 import { UserEntity } from '../entities/user.entity'
 import {
   IFindOptions,
@@ -8,52 +8,61 @@ import {
 
 export abstract class UserRepository {
   abstract createUser(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     data: Prisma.UserUncheckedCreateInput
   ): Promise<UserEntity>
 
   abstract updateUserById(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     id: string,
     data: Prisma.UserUncheckedUpdateInput
   ): Promise<UserEntity>
 
   abstract findUserByEmail(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     email: string,
     options: IFindOptions
   ): Promise<UserEntity>
 
   abstract findUserByLogin(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     login: string,
     options: IFindOptions
   ): Promise<UserEntity>
 
   abstract findUserById(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     id: string,
     options: IFindOptions
   ): Promise<UserEntity>
 
   abstract countUsers(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     { skip, take, ...options }: IPaginationOptions
   ): Promise<number>
 
   abstract findAllUsersForPagination(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     options: IPaginationOptions
   ): Promise<UserEntity[]>
 
   abstract findAllUsers(
-    tx: PCTransaction,
+    tx: PrismaClientTransaction,
     options: IFindOptions
   ): Promise<UserEntity[]>
 
-  abstract disableUserById(tx: PCTransaction, id: string): Promise<UserEntity>
+  abstract disableUserById(
+    tx: PrismaClientTransaction,
+    id: string
+  ): Promise<UserEntity>
 
-  abstract enableUserById(tx: PCTransaction, id: string): Promise<UserEntity>
+  abstract enableUserById(
+    tx: PrismaClientTransaction,
+    id: string
+  ): Promise<UserEntity>
 
-  abstract deleteUserById(tx: PCTransaction, id: string): Promise<UserEntity>
+  abstract deleteUserById(
+    tx: PrismaClientTransaction,
+    id: string
+  ): Promise<UserEntity>
 }
