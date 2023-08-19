@@ -111,7 +111,7 @@ export class UsersController {
 
   @Patch(':id')
   async updateUserById(
-    @Param('id') id: string,
+    @Param('id') id: any,
     @Body() updateUserDto: UpdateUserDto
   ) {
     const user = await this.prisma.$transaction(async (tx) => {
