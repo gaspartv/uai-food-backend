@@ -1,6 +1,6 @@
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
-import { ValidationPipe } from '@nestjs/common'
+import { NestInterceptor, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import {
   FastifyAdapter,
@@ -9,6 +9,8 @@ import {
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import fastifyFileUpload from 'fastify-file-upload'
 import { AppModule } from './app.module'
+import { TransformationInterceptor } from './utils/http-response/http-global-interceptor'
+import { PrismaClientExceptionFilter } from './utils/prisma-client-exception/prisma-client-exception.filter'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -48,6 +50,12 @@ async function bootstrap() {
       transformOptions: { groups: ['transform'] }
     })
   )
+
+  const httpAdapter = app.getHttpAdapter()
+
+  /// GLOBAL INTERCEPTORS ///
+  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter))
+  app.useGlobalInterceptors(new TransformationInterceptor<NestInterceptor>())
 
   /// DOCUMENTAÇÃO ///
   const config = new DocumentBuilder()
