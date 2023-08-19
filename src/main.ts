@@ -8,7 +8,6 @@ import {
 } from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import fastifyFileUpload from 'fastify-file-upload'
-import { RedisModule } from 'fastify-redis'
 import { AppModule } from './app.module'
 
 async function bootstrap() {

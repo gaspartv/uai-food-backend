@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { StarsService } from './stars.service';
-import { CreateStarDto } from './dto/create-star.dto';
-import { UpdateStarDto } from './dto/update-star.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post
+} from '@nestjs/common'
+import { CreateStarDto } from './dto/create-star.dto'
+import { UpdateStarDto } from './dto/update-star.dto'
+import { StarsService } from './stars.service'
 
 @Controller('stars')
 export class StarsController {
@@ -9,26 +17,26 @@ export class StarsController {
 
   @Post()
   create(@Body() createStarDto: CreateStarDto) {
-    return this.starsService.create(createStarDto);
+    return this.starsService.create(createStarDto)
   }
 
   @Get()
   findAll() {
-    return this.starsService.findAll();
+    return this.starsService.findAll()
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.starsService.findOne(+id);
+    return this.starsService.findOne(+id)
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateStarDto: UpdateStarDto) {
-    return this.starsService.update(+id, updateStarDto);
+    return this.starsService.update(+id, updateStarDto)
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.starsService.remove(+id);
+    return this.starsService.remove(+id)
   }
 }

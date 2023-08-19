@@ -7,7 +7,7 @@ import { StorePermissionWithNotRelationsEntity } from '../../store-permissions/e
 
 export class UserWithNotRelationsEntity {
   id: string
-  type: EUserType
+  type?: EUserType
   balance: number
   nivel: number
   experience: number
