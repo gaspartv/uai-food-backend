@@ -1,3 +1,3 @@
-export class ResponseAuthDto {
+export class ResponseTokenDto {
   token: string
 }

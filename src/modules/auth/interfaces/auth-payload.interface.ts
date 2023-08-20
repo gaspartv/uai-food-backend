@@ -4,6 +4,10 @@ export interface IPayload {
   sign: ISign
 }
 
-interface ISign {
+export interface IApplication {
+  sign: ISign
+}
+
+export interface ISign {
   sub: string
 }

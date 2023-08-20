@@ -7,7 +7,7 @@ import {
   UserWithNotRelationsEntity
 } from '../users/entities/user.entity'
 import { UsersService } from '../users/users.service'
-import { ResponseAuthDto } from './dto/auth-response.dto'
+import { ResponseTokenDto } from './dto/auth-response.dto'
 import { IPayload } from './interfaces/auth-payload.interface'
 
 @Injectable()
@@ -18,10 +18,14 @@ export class AuthService {
     private readonly usersService: UsersService
   ) {}
 
-  async login(user: UserWithNotRelationsEntity): Promise<ResponseAuthDto> {
+  async login(user: UserWithNotRelationsEntity): Promise<ResponseTokenDto> {
     const payload: IPayload = { sign: { sub: user.id } }
 
     return { token: this.jwtService.sign(payload) }
+  }
+
+  async logout(): Promise<void> {
+    return
   }
 
   async validateUser(login: string, password: string): Promise<UserEntity> {
