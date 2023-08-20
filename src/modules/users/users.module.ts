@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
 import { PrismaModule } from '../../config/env/prisma/prisma.module'
 import { EnvService } from '../../config/env/service.env'
 import { AddressesModule } from '../addresses/addresses.module'
@@ -8,7 +9,7 @@ import { UsersController } from './users.controller'
 import { UsersService } from './users.service'
 
 @Module({
-  imports: [PrismaModule, AddressesModule],
+  imports: [PrismaModule, AddressesModule, ConfigModule],
   controllers: [UsersController],
   providers: [
     UsersService,

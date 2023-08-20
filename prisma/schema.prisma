@@ -79,6 +79,16 @@ model Address {
   @@map("addresses")
 }
 
+model Session {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  loggedIn    DateTime  @default(now())
+  loggedOutAt DateTime?
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String @db.Uuid
+}
+
 model User {
   id String @id @unique @default(uuid()) @db.Uuid
 
@@ -111,6 +121,7 @@ model User {
   Purchases        Purchase[]
   StorePermissions StorePermission[]
   Stars            Star[]
+  Session          Session[]
 
   @@map("users")
 }

@@ -22,13 +22,7 @@ export class UserPrismaRepository implements UserRepository {
     tx: PrismaClientTransaction,
     data: Prisma.UserUncheckedCreateInput
   ): Promise<UserEntity> {
-    const userCreate = await tx.user.create({ data })
-
-    return await tx.user.update({
-      where: { id: userCreate.id },
-      data: { Address: { connect: { id: data.addressId } } },
-      include: this.include
-    })
+    return await tx.user.create({ data, include: this.include })
   }
 
   async updateUserById(
@@ -80,7 +74,7 @@ export class UserPrismaRepository implements UserRepository {
 
   async countUsers(
     tx: PrismaClientTransaction,
-    { skip, take, ...options }: IPaginationOptions
+    options: IPaginationOptions
   ): Promise<number> {
     const { deletedAt, disabledAt } = whereGenerator(options)
 

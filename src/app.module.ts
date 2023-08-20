@@ -18,6 +18,7 @@ import { StarsModule } from './modules/stars/stars.module'
 import { StorePermissionsModule } from './modules/store-permissions/store-permissions.module'
 import { StoresModule } from './modules/stores/stores.module'
 import { UsersModule } from './modules/users/users.module'
+import { SessionsModule } from './modules/sessions/sessions.module';
 
 @Module({
   imports: [
@@ -47,7 +48,8 @@ import { UsersModule } from './modules/users/users.module'
     StoresModule,
     CategoriesModule,
     StorePermissionsModule,
-    AuthModule
+    AuthModule,
+    SessionsModule
   ],
   controllers: [],
   providers: [
