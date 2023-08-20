@@ -13,6 +13,14 @@ export class SessionPrismaRepository implements SessionRepository {
     return await tx.session.create({ data })
   }
 
+  async updateSession(
+    tx: PrismaClientTransaction,
+    id: string,
+    data: Prisma.SessionUncheckedUpdateInput
+  ): Promise<SessionWithNotRelationsEntity> {
+    return await tx.session.update({ where: { id }, data })
+  }
+
   async findSessionById(
     tx: PrismaClientTransaction,
     id: string

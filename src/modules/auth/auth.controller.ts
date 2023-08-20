@@ -4,8 +4,11 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Request
+  Req,
+  Res
 } from '@nestjs/common'
+import { PrismaClient } from '@prisma/client'
+import { FastifyReply } from 'fastify'
 import { IsPublic } from '../../common/decorators/is-public.decorator'
 import { MessageDto } from '../../common/dto/message.dto'
 import { AuthService } from './auth.service'
@@ -18,14 +21,24 @@ import { AuthLoginResponseMapper } from './mappers/auth-login.response.mapper'
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly prisma: PrismaClient,
+    private readonly authService: AuthService
+  ) {}
 
   @IsPublic()
   @LocalAuth()
   @Post()
   @HttpCode(HttpStatus.OK)
-  async login(@Request() req: IAuthRequest): Promise<ResponseTokenDto> {
-    const { token } = await this.authService.login(req.user)
+  async login(
+    @Req() req: IAuthRequest,
+    @Res({ passthrough: true }) res: FastifyReply
+  ): Promise<ResponseTokenDto> {
+    const { token } = await this.prisma.$transaction(async (tx) => {
+      return await this.authService.login(tx, req.user)
+    })
+
+    res.setCookie('refreshToken', token)
 
     return AuthLoginResponseMapper(token)
   }

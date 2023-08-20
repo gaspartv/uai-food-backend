@@ -3,8 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { isUUID } from 'class-validator'
 import { randomUUID } from 'crypto'
 import { PrismaClientTransaction } from '../../config/env/prisma/prisma.interface'
-import { PrismaModule } from '../../config/env/prisma/prisma.module'
 import { EnvService } from '../../config/env/service.env'
+import { expiresAtGenerator } from '../../utils/expires-generator.utils'
 import { UsersModule } from '../users/users.module'
 import { UsersService } from '../users/users.service'
 import { CreateSessionDto } from './dto/create-session.dto'
@@ -21,7 +21,7 @@ describe('SessionsService', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [PrismaModule, UsersModule, ConfigModule],
+      imports: [UsersModule, ConfigModule],
       providers: [
         EnvService,
         SessionsService,
@@ -51,7 +51,8 @@ describe('SessionsService', () => {
 
   it('should to create a session - createSession()', async () => {
     const userId = randomUUID()
-    const data: CreateSessionDto = { userId }
+    const expiresAt = expiresAtGenerator()
+    const data: CreateSessionDto = { userId, expiresAt }
 
     const session = await service.createSession(tx, data)
 
@@ -70,7 +71,8 @@ describe('SessionsService', () => {
 
   it('should to search a session by id - findSessionById()', async () => {
     const userId = randomUUID()
-    const session = await service.createSession(tx, { userId })
+    const expiresAt = expiresAtGenerator()
+    const session = await service.createSession(tx, { userId, expiresAt })
 
     const findSession = await service.findSessionById(tx, session.id)
 
@@ -93,7 +95,9 @@ describe('SessionsService', () => {
     const promises: Promise<SessionWithNotRelationsEntity>[] = []
 
     for (let i = 0; i < 10; i++) {
-      promises.push(sessionRepository.createSession(tx, { userId }))
+      promises.push(
+        sessionRepository.createSession(tx, { userId, expiresAt: new Date() })
+      )
     }
 
     await Promise.all(promises)
@@ -121,11 +125,13 @@ describe('SessionsService', () => {
   })
 
   it('should to search all sessions - findAllSession()', async () => {
+    const expiresAt = expiresAtGenerator()
+
     const promises: Promise<SessionWithNotRelationsEntity>[] = []
 
     for (let i = 0; i < 32; i++) {
       promises.push(
-        sessionRepository.createSession(tx, { userId: randomUUID() })
+        sessionRepository.createSession(tx, { userId: randomUUID(), expiresAt })
       )
     }
 
@@ -155,7 +161,8 @@ describe('SessionsService', () => {
 
   it('should to disable a session by id - disableSessionById()', async () => {
     const userId = randomUUID()
-    const session = await service.createSession(tx, { userId })
+    const expiresAt = expiresAtGenerator()
+    const session = await service.createSession(tx, { userId, expiresAt })
 
     const sessionDisabled = await service.disableSessionById(tx, session.id)
 
@@ -175,11 +182,12 @@ describe('SessionsService', () => {
 
   it('should to be disabled all sessions by userId - disableAllSessionByUser()', async () => {
     const userId = randomUUID()
+    const expiresAt = expiresAtGenerator()
 
     const promises: Promise<SessionWithNotRelationsEntity>[] = []
 
     for (let i = 0; i < 8; i++) {
-      promises.push(sessionRepository.createSession(tx, { userId }))
+      promises.push(sessionRepository.createSession(tx, { userId, expiresAt }))
     }
 
     await Promise.all(promises)
@@ -201,7 +209,9 @@ describe('SessionsService', () => {
 
   it('should to search a session by id or throw - findSessionByIdOrThrow()', async () => {
     const userId = randomUUID()
-    const session = await service.createSession(tx, { userId })
+    const expiresAt = expiresAtGenerator()
+
+    const session = await service.createSession(tx, { userId, expiresAt })
 
     const findSession = await service.findSessionByIdOrThrow(tx, session.id)
 

@@ -10,4 +10,5 @@ export interface IApplication {
 
 export interface ISign {
   sub: string
+  sessionId: string
 }

@@ -8,6 +8,12 @@ export abstract class SessionRepository {
     data: Prisma.SessionUncheckedCreateInput
   ): Promise<SessionWithNotRelationsEntity>
 
+  abstract updateSession(
+    tx: PrismaClientTransaction,
+    id: string,
+    data: Prisma.SessionUncheckedUpdateInput
+  ): Promise<SessionWithNotRelationsEntity>
+
   abstract findSessionById(
     tx: PrismaClientTransaction,
     id: string

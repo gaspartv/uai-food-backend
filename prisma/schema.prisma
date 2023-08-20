@@ -83,7 +83,10 @@ model Session {
   id String @id @unique @default(uuid()) @db.Uuid
 
   loggedIn    DateTime  @default(now())
+  expiresAt   DateTime
   loggedOutAt DateTime?
+
+  tokens String[]
 
   User   User   @relation(fields: [userId], references: [id])
   userId String @db.Uuid

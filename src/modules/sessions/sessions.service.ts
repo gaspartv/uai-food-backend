@@ -3,6 +3,7 @@ import { MessageDto } from '../../common/dto/message.dto'
 import { PrismaClientTransaction } from '../../config/env/prisma/prisma.interface'
 import { UsersService } from '../users/users.service'
 import { CreateSessionDto } from './dto/create-session.dto'
+import { UpdateSessionDto } from './dto/update-session.dto'
 import { SessionWithNotRelationsEntity } from './entities/session.entity'
 import { SessionRepository } from './repositories/sessions.repository'
 
@@ -25,6 +26,16 @@ export class SessionsService {
     await this.sessionRepository.disableAllSessionByUser(tx, data.userId)
 
     return await this.sessionRepository.createSession(tx, data)
+  }
+
+  async updateSession(
+    tx: PrismaClientTransaction,
+    id: string,
+    data: UpdateSessionDto
+  ) {
+    await this.findSessionByIdOrThrow(tx, id)
+
+    return await this.sessionRepository.updateSession(tx, id, data)
   }
 
   async findSessionById(

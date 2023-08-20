@@ -1,3 +1,4 @@
+import fastifyCookie from '@fastify/cookie'
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
 import fastifyStatic from '@fastify/static'
@@ -19,6 +20,9 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter()
   )
+
+  // COOKIE
+  await app.register(fastifyCookie, { secret: 'uai-food' })
 
   // CONFIGURAÇÃO DO REDIS
   // await app.register(RedisModule, {

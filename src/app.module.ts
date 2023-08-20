@@ -1,5 +1,10 @@
 import { BullModule } from '@nestjs/bull'
-import { Module, ValidationPipe } from '@nestjs/common'
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  ValidationPipe
+} from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD, APP_PIPE } from '@nestjs/core'
 import { ScheduleModule } from '@nestjs/schedule'
@@ -12,13 +17,14 @@ import { AddressesModule } from './modules/addresses/addresses.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { JwtAuthGuard } from './modules/auth/guards/auth-jwt.guard'
 import { CheckPasswordGuard } from './modules/auth/guards/check-password.guard'
+import { RefreshTokenMiddleware } from './modules/auth/middlewares/refresh-token.middleware'
 import { CategoriesModule } from './modules/categories/categories.module'
 import { PurchasesModule } from './modules/purchases/purchases.module'
+import { SessionsModule } from './modules/sessions/sessions.module'
 import { StarsModule } from './modules/stars/stars.module'
 import { StorePermissionsModule } from './modules/store-permissions/store-permissions.module'
 import { StoresModule } from './modules/stores/stores.module'
 import { UsersModule } from './modules/users/users.module'
-import { SessionsModule } from './modules/sessions/sessions.module';
 
 @Module({
   imports: [
@@ -60,4 +66,8 @@ import { SessionsModule } from './modules/sessions/sessions.module';
     EnvService
   ]
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RefreshTokenMiddleware).forRoutes('*')
+  }
+}

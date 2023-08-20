@@ -1,4 +1,12 @@
-import { PartialType } from '@nestjs/swagger'
-import { CreateSessionDto } from './create-session.dto'
+import { IsArray, IsDate, IsOptional, IsString } from 'class-validator'
 
-export class UpdateSessionDto extends PartialType(CreateSessionDto) {}
+export class UpdateSessionDto {
+  @IsOptional()
+  @IsDate()
+  expiresAt: Date
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tokens?: string[]
+}

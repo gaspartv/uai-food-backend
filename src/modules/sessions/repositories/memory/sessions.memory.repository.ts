@@ -26,6 +26,14 @@ export class SessionMemoryRepository implements SessionRepository {
     return session
   }
 
+  updateSession(
+    tx: PrismaClientTransaction,
+    id: string,
+    data: Prisma.SessionUncheckedUpdateInput
+  ): Promise<SessionWithNotRelationsEntity> {
+    throw new Error('Method not implemented.')
+  }
+
   async findSessionById(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _tx: PrismaClientTransaction,

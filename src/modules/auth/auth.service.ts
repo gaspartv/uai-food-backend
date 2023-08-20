@@ -2,6 +2,9 @@ import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaClient } from '@prisma/client'
 import { compare } from 'bcryptjs'
+import { PrismaClientTransaction } from '../../config/env/prisma/prisma.interface'
+import { expiresAtGenerator } from '../../utils/expires-generator.utils'
+import { SessionsService } from '../sessions/sessions.service'
 import {
   UserEntity,
   UserWithNotRelationsEntity
@@ -15,11 +18,24 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaClient,
     private readonly jwtService: JwtService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly sessionsService: SessionsService
   ) {}
 
-  async login(user: UserWithNotRelationsEntity): Promise<ResponseTokenDto> {
-    const payload: IPayload = { sign: { sub: user.id } }
+  async login(
+    tx: PrismaClientTransaction,
+    user: UserWithNotRelationsEntity
+  ): Promise<ResponseTokenDto> {
+    const expiresAt = expiresAtGenerator()
+
+    const session = await this.sessionsService.createSession(tx, {
+      userId: user.id,
+      expiresAt
+    })
+
+    const payload: IPayload = {
+      sign: { sub: user.id, sessionId: session.id }
+    }
 
     return { token: this.jwtService.sign(payload) }
   }

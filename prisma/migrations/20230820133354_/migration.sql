@@ -29,12 +29,23 @@ CREATE TABLE "addresses" (
 );
 
 -- CreateTable
+CREATE TABLE "Session" (
+    "id" UUID NOT NULL,
+    "loggedIn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "loggedOutAt" TIMESTAMP(3),
+    "userId" UUID NOT NULL,
+
+    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL,
     "type" "usersType",
-    "balance" BIGINT NOT NULL DEFAULT 0,
-    "nivel" INTEGER NOT NULL,
-    "experience" INTEGER NOT NULL,
+    "balance" INTEGER NOT NULL DEFAULT 0,
+    "nivel" INTEGER NOT NULL DEFAULT 1,
+    "experience" INTEGER NOT NULL DEFAULT 0,
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,
     "description" TEXT,
@@ -59,7 +70,7 @@ CREATE TABLE "purchases" (
     "id" UUID NOT NULL,
     "status" "status" NOT NULL,
     "rating" "ratings",
-    "totalPrice" BIGINT NOT NULL DEFAULT 0,
+    "totalPrice" INTEGER NOT NULL DEFAULT 0,
     "userId" UUID NOT NULL,
     "storeId" UUID NOT NULL,
 
@@ -69,6 +80,10 @@ CREATE TABLE "purchases" (
 -- CreateTable
 CREATE TABLE "store-permission" (
     "id" UUID NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "disabledAt" TIMESTAMP(3),
+    "deletedAt" TIMESTAMP(3),
     "type" "usersPermission",
     "userId" UUID,
     "storeId" UUID,
@@ -126,6 +141,9 @@ CREATE TABLE "_CategoryToStore" (
 CREATE UNIQUE INDEX "addresses_id_key" ON "addresses"("id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Session_id_key" ON "Session"("id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "users_id_key" ON "users"("id");
 
 -- CreateIndex
@@ -175,6 +193,9 @@ CREATE UNIQUE INDEX "_CategoryToStore_AB_unique" ON "_CategoryToStore"("A", "B")
 
 -- CreateIndex
 CREATE INDEX "_CategoryToStore_B_index" ON "_CategoryToStore"("B");
+
+-- AddForeignKey
+ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "addresses"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
