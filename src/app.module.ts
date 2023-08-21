@@ -9,15 +9,16 @@ import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD, APP_PIPE } from '@nestjs/core'
 import { ScheduleModule } from '@nestjs/schedule'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
+import { CheckPasswordGuard } from './common/guards/check-password.guard'
+import { JwtGuard } from './common/guards/jwt.guard'
+import { RefreshTokenMiddleware } from './common/middlewares/refresh-token.middleware'
+import { JwtStrategy } from './common/strategies/jwt.strategy'
 import { load } from './config/env/load.env'
-import { PrismaModule } from './config/env/prisma/prisma.module'
 import { EnvService } from './config/env/service.env'
 import { validate } from './config/env/validate.env'
+import { PrismaModule } from './config/prisma/prisma.module'
 import { AddressesModule } from './modules/addresses/addresses.module'
 import { AuthModule } from './modules/auth/auth.module'
-import { JwtAuthGuard } from './modules/auth/guards/auth-jwt.guard'
-import { CheckPasswordGuard } from './modules/auth/guards/check-password.guard'
-import { RefreshTokenMiddleware } from './modules/auth/middlewares/refresh-token.middleware'
 import { CategoriesModule } from './modules/categories/categories.module'
 import { PurchasesModule } from './modules/purchases/purchases.module'
 import { SessionsModule } from './modules/sessions/sessions.module'
@@ -60,11 +61,13 @@ import { UsersModule } from './modules/users/users.module'
   controllers: [],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
-    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: JwtGuard },
     { provide: APP_GUARD, useClass: CheckPasswordGuard },
     { provide: APP_PIPE, useClass: ValidationPipe },
-    EnvService
-  ]
+    EnvService,
+    JwtStrategy
+  ],
+  exports: [JwtStrategy]
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

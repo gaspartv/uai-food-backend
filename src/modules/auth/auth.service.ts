@@ -2,7 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaClient } from '@prisma/client'
 import { compare } from 'bcryptjs'
-import { PrismaClientTransaction } from '../../config/env/prisma/prisma.interface'
+import { IPayload } from '../../common/interfaces/payload.interface'
+import { PrismaClientTransaction } from '../../config/prisma/prisma.interface'
 import { expiresAtGenerator } from '../../utils/expires-generator.utils'
 import { SessionsService } from '../sessions/sessions.service'
 import {
@@ -11,7 +12,6 @@ import {
 } from '../users/entities/user.entity'
 import { UsersService } from '../users/users.service'
 import { ResponseTokenDto } from './dto/auth-response.dto'
-import { IPayload } from './interfaces/auth-payload.interface'
 
 @Injectable()
 export class AuthService {
@@ -40,7 +40,8 @@ export class AuthService {
     return { token: this.jwtService.sign(payload) }
   }
 
-  async logout(): Promise<void> {
+  async logout(tx: PrismaClientTransaction, userId: string): Promise<void> {
+    await this.sessionsService.disableAllSessionByUser(tx, userId)
     return
   }
 

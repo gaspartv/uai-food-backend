@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { PrismaModule } from '../../config/env/prisma/prisma.module'
+import { PrismaModule } from '../../config/prisma/prisma.module'
 import { AddressesController } from './addresses.controller'
 import { AddressesService } from './addresses.service'
 import { AddressRepository } from './repositories/address.repository'

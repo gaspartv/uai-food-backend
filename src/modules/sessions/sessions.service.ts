@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { MessageDto } from '../../common/dto/message.dto'
-import { PrismaClientTransaction } from '../../config/env/prisma/prisma.interface'
+import { PrismaClientTransaction } from '../../config/prisma/prisma.interface'
 import { UsersService } from '../users/users.service'
 import { CreateSessionDto } from './dto/create-session.dto'
 import { UpdateSessionDto } from './dto/update-session.dto'

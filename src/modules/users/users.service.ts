@@ -4,8 +4,8 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { hash } from 'bcryptjs'
-import { PrismaClientTransaction } from '../../config/env/prisma/prisma.interface'
 import { EnvService } from '../../config/env/service.env'
+import { PrismaClientTransaction } from '../../config/prisma/prisma.interface'
 import { AddressesService } from '../addresses/addresses.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'

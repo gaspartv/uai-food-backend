@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { randomUUID } from 'crypto'
-import { PrismaClientTransaction } from '../../../../config/env/prisma/prisma.interface'
+import { PrismaClientTransaction } from '../../../../config/prisma/prisma.interface'
 import { SessionWithNotRelationsEntity } from '../../entities/session.entity'
 import { SessionRepository } from '../sessions.repository'
 

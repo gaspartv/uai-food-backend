@@ -1,7 +1,7 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AppModule } from '../../src/app.module'
-import { PrismaService } from '../../src/config/env/prisma/prisma.service'
+import { PrismaService } from '../../src/config/prisma/prisma.service'
 
 export class PrismaTestUtils {
   static async run() {

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { PrismaClientTransaction } from '../../config/env/prisma/prisma.interface'
+import { PrismaClientTransaction } from '../../config/prisma/prisma.interface'
 import { CreateAddressDto } from './dto/create-address.dto'
 import { AddressRepository } from './repositories/address.repository'
 

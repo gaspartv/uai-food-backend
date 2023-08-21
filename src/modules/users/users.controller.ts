@@ -10,6 +10,7 @@ import {
 import { ApiTags } from '@nestjs/swagger'
 import { PrismaClient } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
+import { CheckPassword } from '../../common/decorators/check-password.decorator'
 import { IsPublic } from '../../common/decorators/is-public.decorator'
 import { OptionalParseBollPipe } from '../../common/pipes/optional-parse-boolean.pipe'
 import { OptionalParseIntPipe } from '../../common/pipes/optional-parse-int.pipe'
@@ -77,18 +78,14 @@ export class UsersController {
       page: skip,
       total: usersCount,
       next:
-        options.skip < usersCount - options.take
+        skip < usersCount - take
           ? this.envService.env.BACKEND_URL +
-            `/users?skip${options.skip + 1}&take=${
-              options.take
-            }&disabled=${disabledAt}`
+            `/users?skip${skip + 1}&take=${take}&disabled=${disabledAt}`
           : null,
       previous:
-        options.skip > 0
+        skip > 0
           ? this.envService.env.BACKEND_URL +
-            `/users?skip${options.skip - 1}&take=${
-              options.take
-            }&disabled=${disabledAt}`
+            `/users?skip${skip - 1}&take=${take}&disabled=${disabledAt}`
           : null,
       results
     }
@@ -113,6 +110,7 @@ export class UsersController {
     return new UserResponseMapper().handle(user)
   }
 
+  @CheckPassword()
   @Patch(':id')
   async updateUserById(
     @Param('id') id: any,

@@ -8,8 +8,8 @@ import {
 import { Reflector } from '@nestjs/core'
 import { PrismaClient } from '@prisma/client'
 import { compare } from 'bcryptjs'
-import { EnvService } from '../../../config/env/service.env'
-import { UsersService } from '../../users/users.service'
+import { EnvService } from '../../config/env/service.env'
+import { UsersService } from '../../modules/users/users.service'
 import { IS_PASSWORD_CHECK_REQUIRED } from '../decorators/check-password.decorator'
 
 @Injectable()
@@ -27,47 +27,35 @@ export class CheckPasswordGuard implements CanActivate {
       [context.getHandler(), context.getClass()]
     )
 
-    if (!requirePasswordCheck) {
-      return true
-    }
+    if (!requirePasswordCheck) return true
 
-    const request = context.switchToHttp().getRequest()
-
-    const data = this.extract(request)
-
-    await this.validate(data)
+    await this.validate(this.extract(context.switchToHttp().getRequest()))
 
     return true
   }
 
   async validate(data: { sub: string; password: string }): Promise<void> {
-    const { password, sub } = data
-
-    const user = await this.usersService.findUserByIdOrThrow(this.prisma, sub, {
+    const user = await this.usersService.findUserById(this.prisma, data.sub, {
       deletedAt: null,
       disabledAt: null
     })
 
-    const isPasswordValid = await compare(password, user.password_hash)
+    const passwordValid = await compare(data.password, user.password_hash)
 
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Login or password incorrect.')
+    if (!passwordValid) {
+      throw new UnauthorizedException('Invalid credentials.')
     }
   }
 
-  extract(request: any) {
+  extract(req: any) {
     try {
-      if (!request.user.sign.sub || !request.body.password) {
-        throw new Error()
+      if (!req.user.sign.sub || !req.body.password) {
+        throw new UnauthorizedException('Invalid token.')
       }
-
-      return { sub: request.user.sign.sub, password: request.body.password }
+      return { sub: req.user.sign.sub, password: req.body.password }
     } catch (error) {
-      if (this.envService.isDevelopment()) {
-        console.log(error)
-      }
-
-      throw new ConflictException('Invalid credentials')
+      console.error(error)
+      throw new ConflictException('Invalid credentials.')
     }
   }
 }

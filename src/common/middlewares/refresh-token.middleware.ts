@@ -7,10 +7,10 @@ import { JwtService } from '@nestjs/jwt'
 import { PrismaClient } from '@prisma/client'
 import { NextFunction } from 'express'
 import { FastifyReply } from 'fastify'
-import { expiresAtGenerator } from '../../../utils/expires-generator.utils'
-import { SessionsService } from '../../sessions/sessions.service'
-import { IPayload } from '../interfaces/auth-payload.interface'
-import { IAuthRequest } from '../interfaces/auth-request.interface'
+import { SessionsService } from '../../modules/sessions/sessions.service'
+import { expiresAtGenerator } from '../../utils/expires-generator.utils'
+import { IPayload } from '../interfaces/payload.interface'
+import { IRequest } from '../interfaces/request.interface'
 
 @Injectable()
 export class RefreshTokenMiddleware implements NestMiddleware {
@@ -20,7 +20,7 @@ export class RefreshTokenMiddleware implements NestMiddleware {
     private readonly sessionsService: SessionsService
   ) {}
 
-  async use(req: IAuthRequest, _res: FastifyReply, next: NextFunction) {
+  async use(req: IRequest, _res: FastifyReply, next: NextFunction) {
     if (req.headers.authorization) {
       const token = req.headers.authorization.split('Bearer ')[1]
 

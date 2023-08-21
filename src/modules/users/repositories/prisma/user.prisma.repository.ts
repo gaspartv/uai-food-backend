@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { PrismaClientTransaction } from '../../../../config/env/prisma/prisma.interface'
+import { PrismaClientTransaction } from '../../../../config/prisma/prisma.interface'
 import { whereGenerator } from '../../../../utils/where-generator.utils'
 import { UserEntity } from '../../entities/user.entity'
 import {

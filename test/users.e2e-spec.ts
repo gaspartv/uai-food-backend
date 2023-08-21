@@ -2,7 +2,7 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
-import { PrismaService } from '../src/config/env/prisma/prisma.service'
+import { PrismaService } from '../src/config/prisma/prisma.service'
 import { CreateUserDto } from '../src/modules/users/dto/create-user.dto'
 import { ResponseUserDto } from '../src/modules/users/dto/response-user.dto'
 

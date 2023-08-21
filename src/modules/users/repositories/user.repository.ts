@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client'
-import { PrismaClientTransaction } from '../../../config/env/prisma/prisma.interface'
+import { PrismaClientTransaction } from '../../../config/prisma/prisma.interface'
 import { UserEntity } from '../entities/user.entity'
 import {
   IFindOptions,
