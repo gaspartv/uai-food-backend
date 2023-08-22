@@ -1,0 +1,9 @@
+{
+  "cSpell.enableFiletypes": ["prisma", "properties"],
+  "launch": {
+    "configurations": [],
+    "compounds": []
+  },
+  "typescript.tsserver.watchOptions": {},
+  "window.autoDetectColorScheme": false
+}

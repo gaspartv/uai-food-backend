@@ -1,0 +1,28 @@
+version: '3.8'
+name: api-uai-food
+services:
+  postgres-main:
+    container_name: main
+    image: bitnami/postgresql
+    ports:
+      - 5400:5432
+    environment:
+      - POSTGRESQL_USERNAME=docker
+      - POSTGRESQL_PASSWORD=docker
+      - POSTGRESQL_DATABASE=db-uai-food
+
+  postgres-test:
+    container_name: test
+    image: bitnami/postgresql
+    ports:
+      - 5401:5432
+    environment:
+      - POSTGRESQL_USERNAME=docker
+      - POSTGRESQL_PASSWORD=docker
+      - POSTGRESQL_DATABASE=db-uai-food-test
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - 6379:6379
