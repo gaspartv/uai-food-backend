@@ -49,7 +49,7 @@ export class AuthService {
     const user = await this.usersService.findUserByLoginOrThrow(
       this.prisma,
       login,
-      { deletedAt: null, disabledAt: null }
+      { deletedAt: false, disabledAt: false }
     )
 
     return await this.validate(user, password)

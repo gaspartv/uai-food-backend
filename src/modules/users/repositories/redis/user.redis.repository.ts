@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 import { PrismaClientTransaction } from '../../../../config/prisma/prisma.interface'
+import { RedisService } from '../../../../config/redis/redis.service'
 import { whereGenerator } from '../../../../utils/where-generator.utils'
 import { UserEntity } from '../../entities/user.entity'
 import {
@@ -10,7 +11,12 @@ import {
 import { UserRepository } from '../user.repository'
 
 @Injectable()
-export class UserPrismaRepository implements UserRepository {
+export class UserRedisRepository implements UserRepository {
+  constructor(
+    private readonly redis: RedisService,
+    private readonly prisma: PrismaClient
+  ) {}
+
   private include = {
     Address: true,
     Purchases: true,
@@ -79,22 +85,25 @@ export class UserPrismaRepository implements UserRepository {
     tx: PrismaClientTransaction,
     { skip, take, ...options }: IPaginationOptions
   ): Promise<UserEntity[]> {
-    return await tx.user.findMany({
-      where: { ...whereGenerator(options) },
-      skip,
-      take,
-      include: this.include
-    })
-  }
+    const cached =
+      'findAllUsersForPagination' + options.deletedAt + options.disabledAt
 
-  async findAllUsers(
-    tx: PrismaClientTransaction,
-    options: IFindOptions
-  ): Promise<UserEntity[]> {
-    return await tx.user.findMany({
-      where: { ...whereGenerator(options) },
-      include: this.include
-    })
+    const cachedUsers = await this.redis.get(`${cached}`)
+
+    if (!cachedUsers) {
+      const users = await tx.user.findMany({
+        where: { ...whereGenerator(options) },
+        skip,
+        take,
+        include: this.include
+      })
+
+      await this.redis.set(`${cached}`, JSON.stringify(users))
+
+      return users
+    }
+
+    return JSON.parse(cachedUsers)
   }
 
   async disableUserById(
@@ -128,5 +137,20 @@ export class UserPrismaRepository implements UserRepository {
       data: { disabledAt: new Date(), deletedAt: new Date() },
       include: this.include
     })
+  }
+
+  async findAllUsers(
+    tx: PrismaClientTransaction,
+    options: IFindOptions
+  ): Promise<UserEntity[]> {
+    const cachedUsers = await this.redis.get('users')
+
+    if (!cachedUsers) {
+      console.log('sem cache')
+      // return await this.prisma.findAllUsers(tx, options)
+    }
+    console.log('com cache')
+
+    return JSON.parse(cachedUsers)
   }
 }

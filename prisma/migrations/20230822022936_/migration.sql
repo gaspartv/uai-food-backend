@@ -34,6 +34,7 @@ CREATE TABLE "Session" (
     "loggedIn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "loggedOutAt" TIMESTAMP(3),
+    "tokens" TEXT[],
     "userId" UUID NOT NULL,
 
     CONSTRAINT "Session_pkey" PRIMARY KEY ("id")

@@ -39,6 +39,7 @@
     "@nestjs/throttler": "^4.2.1",
     "@prisma/client": "^5.1.1",
     "bcryptjs": "^2.4.3",
+    "bull": "^4.11.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "fastify-file-upload": "^4.0.0",

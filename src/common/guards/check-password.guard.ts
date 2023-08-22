@@ -8,7 +8,6 @@ import {
 import { Reflector } from '@nestjs/core'
 import { PrismaClient } from '@prisma/client'
 import { compare } from 'bcryptjs'
-import { EnvService } from '../../config/env/service.env'
 import { UsersService } from '../../modules/users/users.service'
 import { IS_PASSWORD_CHECK_REQUIRED } from '../decorators/check-password.decorator'
 
@@ -16,7 +15,6 @@ import { IS_PASSWORD_CHECK_REQUIRED } from '../decorators/check-password.decorat
 export class CheckPasswordGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private envService: EnvService,
     private usersService: UsersService,
     private prisma: PrismaClient
   ) {}
@@ -29,16 +27,25 @@ export class CheckPasswordGuard implements CanActivate {
 
     if (!requirePasswordCheck) return true
 
-    await this.validate(this.extract(context.switchToHttp().getRequest()))
+    const request = context.switchToHttp().getRequest()
+
+    await this.validate(this.extract(request), request.raw.url)
 
     return true
   }
 
-  async validate(data: { sub: string; password: string }): Promise<void> {
+  async validate(
+    data: { sub: string; password: string },
+    url: string
+  ): Promise<void> {
     const user = await this.usersService.findUserById(this.prisma, data.sub, {
-      deletedAt: null,
-      disabledAt: null
+      deletedAt: false,
+      disabledAt: url.includes('users/enable') ? undefined : false
     })
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials.')
+    }
 
     const passwordValid = await compare(data.password, user.password_hash)
 

@@ -19,8 +19,8 @@ export class SessionsService {
     data: CreateSessionDto
   ): Promise<SessionWithNotRelationsEntity> {
     await this.usersService.findUserByIdOrThrow(tx, data.userId, {
-      deletedAt: null,
-      disabledAt: null
+      deletedAt: false,
+      disabledAt: false
     })
 
     await this.sessionRepository.disableAllSessionByUser(tx, data.userId)
@@ -50,8 +50,8 @@ export class SessionsService {
     userId: string
   ): Promise<SessionWithNotRelationsEntity[]> {
     await this.usersService.findUserByIdOrThrow(tx, userId, {
-      deletedAt: null,
-      disabledAt: null
+      deletedAt: false,
+      disabledAt: false
     })
 
     return await this.sessionRepository.findAllSessionByUser(tx, userId)
@@ -77,8 +77,8 @@ export class SessionsService {
     userId: string
   ): Promise<MessageDto> {
     await this.usersService.findUserByIdOrThrow(tx, userId, {
-      deletedAt: null,
-      disabledAt: null
+      deletedAt: false,
+      disabledAt: false
     })
 
     await this.sessionRepository.disableAllSessionByUser(tx, userId)

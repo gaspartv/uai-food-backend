@@ -16,5 +16,5 @@ export function whereGenerator(options: {
       ? { deletedAt: null }
       : { deletedAt: undefined }
 
-  return { disabledAt, deletedAt }
+  return { ...disabledAt, ...deletedAt }
 }

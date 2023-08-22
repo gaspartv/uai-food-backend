@@ -12,6 +12,10 @@ import { PrismaClient } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { CheckPassword } from '../../common/decorators/check-password.decorator'
 import { IsPublic } from '../../common/decorators/is-public.decorator'
+import { Sign } from '../../common/decorators/sign.decorator'
+import { CheckPasswordDto } from '../../common/dto/check-password.dto'
+import { MessageDto } from '../../common/dto/message.dto'
+import { ISign } from '../../common/interfaces/payload.interface'
 import { OptionalParseBollPipe } from '../../common/pipes/optional-parse-boolean.pipe'
 import { OptionalParseIntPipe } from '../../common/pipes/optional-parse-int.pipe'
 import { ParseUuidPipe } from '../../common/pipes/parse-uuid.pipe'
@@ -40,12 +44,31 @@ export class UsersController {
   ) {}
 
   @IsPublic()
-  @Post()
+  @Post('create')
   async createUser(@Body() dto: CreateUserDto): Promise<ResponseUserDto> {
     const user = await this.prisma.$transaction(async (tx) => {
       return await this.usersService.createUser(tx, dto)
     })
     return new UserResponseMapper().handle(user)
+  }
+
+  @CheckPassword()
+  @Patch('edit/:id')
+  async updateUserById(
+    @Sign() sign: ISign,
+    @Param('id') id: any,
+    @Body() updateUserDto: UpdateUserDto
+  ): Promise<ResponseUserDto> {
+    const user = await this.prisma.$transaction(async (tx) => {
+      return await this.usersService.updateUserById(
+        tx,
+        id,
+        sign.sub,
+        updateUserDto
+      )
+    })
+
+    return plainToInstance(UserEntity, user)
   }
 
   @Get()
@@ -91,14 +114,14 @@ export class UsersController {
     }
   }
 
-  @Get(':id')
+  @Get('find/:id')
   async findOne(
     @Query('disabled', new OptionalParseBollPipe())
     disabledAt: boolean | undefined,
     @Query('deleted', new OptionalParseBollPipe())
     deletedAt: boolean | undefined,
     @Param('id', new ParseUuidPipe()) id: string
-  ) {
+  ): Promise<ResponseUserDto> {
     const options: IFindOptions = {
       disabledAt,
       deletedAt
@@ -111,24 +134,44 @@ export class UsersController {
   }
 
   @CheckPassword()
-  @Patch(':id')
-  async updateUserById(
-    @Param('id') id: any,
-    @Body() updateUserDto: UpdateUserDto
-  ) {
+  @Patch('enable/:id')
+  async enableUserById(
+    @Param('id') id: string,
+    @Sign() sign: ISign,
+    @Body() _: CheckPasswordDto
+  ): Promise<ResponseUserDto> {
     const user = await this.prisma.$transaction(async (tx) => {
-      return await this.usersService.updateUserById(tx, id, updateUserDto)
+      return await this.usersService.enableUserById(tx, id, sign.sub)
     })
 
-    return plainToInstance(UserEntity, user)
+    return new UserResponseMapper().handle(user)
   }
 
-  // @Delete(':id')
-  // async delete(@Param('id') id: string) {
-  //   const user = await this.prisma.$transaction(async (tx) => {
-  //     return await this.usersService.delete(tx, id)
-  //   })
+  @CheckPassword()
+  @Patch('disable/:id')
+  async disableUserById(
+    @Param('id') id: string,
+    @Sign() sign: ISign,
+    @Body() _: CheckPasswordDto
+  ): Promise<ResponseUserDto> {
+    const user = await this.prisma.$transaction(async (tx) => {
+      return await this.usersService.disableUserById(tx, id, sign.sub)
+    })
 
-  //   return plainToInstance(UserEntity, user)
-  // }
+    return new UserResponseMapper().handle(user)
+  }
+
+  @CheckPassword()
+  @Patch('delete/:id')
+  async deleteUserById(
+    @Param('id') id: string,
+    @Sign() sign: ISign,
+    @Body() _: CheckPasswordDto
+  ): Promise<MessageDto> {
+    await this.prisma.$transaction(async (tx) => {
+      return await this.usersService.deleteUserById(tx, id, sign.sub)
+    })
+
+    return { message: 'Successfully deleted user.' }
+  }
 }

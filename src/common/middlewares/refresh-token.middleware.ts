@@ -8,6 +8,7 @@ import { PrismaClient } from '@prisma/client'
 import { NextFunction } from 'express'
 import { FastifyReply } from 'fastify'
 import { SessionsService } from '../../modules/sessions/sessions.service'
+import { UsersService } from '../../modules/users/users.service'
 import { expiresAtGenerator } from '../../utils/expires-generator.utils'
 import { IPayload } from '../interfaces/payload.interface'
 import { IRequest } from '../interfaces/request.interface'
@@ -17,10 +18,11 @@ export class RefreshTokenMiddleware implements NestMiddleware {
   constructor(
     private readonly prisma: PrismaClient,
     private readonly jwtService: JwtService,
-    private readonly sessionsService: SessionsService
+    private readonly sessionsService: SessionsService,
+    private readonly usersService: UsersService
   ) {}
 
-  async use(req: IRequest, _res: FastifyReply, next: NextFunction) {
+  async use(req: IRequest, res: FastifyReply, next: NextFunction) {
     if (req.headers.authorization) {
       const token = req.headers.authorization.split('Bearer ')[1]
 
@@ -30,7 +32,22 @@ export class RefreshTokenMiddleware implements NestMiddleware {
 
       const decoded: any = this.jwtService.decode(token)
 
-      if (!decoded || !decoded.sign || !decoded.sign.sessionId) {
+      if (
+        !decoded ||
+        !decoded.sign ||
+        !decoded.sign.sessionId ||
+        !decoded.sign.sub
+      ) {
+        throw new UnauthorizedException('Invalid token.')
+      }
+
+      const user = await this.usersService.findUserById(
+        this.prisma,
+        decoded.sign.sub,
+        { deletedAt: false, disabledAt: false }
+      )
+
+      if (!user) {
         throw new UnauthorizedException('Invalid token.')
       }
 

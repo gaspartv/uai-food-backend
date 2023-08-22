@@ -3,14 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaService } from './prisma.service'
 
 @Module({
-  providers: [
-    PrismaService,
-    {
-      provide: PrismaClient,
-      useFactory: (prismaService: PrismaService) => prismaService.extends(),
-      inject: [PrismaService]
-    }
-  ],
+  providers: [PrismaService, PrismaClient],
   exports: [PrismaClient]
 })
 export class PrismaModule {}
