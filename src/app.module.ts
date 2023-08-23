@@ -17,6 +17,7 @@ import { load } from './config/env/load.env'
 import { EnvService } from './config/env/service.env'
 import { validate } from './config/env/validate.env'
 import { PrismaModule } from './config/prisma/prisma.module'
+import { RedisService } from './config/redis/redis.service'
 import { AddressesModule } from './modules/addresses/addresses.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { CategoriesModule } from './modules/categories/categories.module'
@@ -25,6 +26,7 @@ import { SessionsModule } from './modules/sessions/sessions.module'
 import { StarsModule } from './modules/stars/stars.module'
 import { StorePermissionsModule } from './modules/store-permissions/store-permissions.module'
 import { StoresModule } from './modules/stores/stores.module'
+import { UserRedisRepository } from './modules/users/repositories/redis/user.redis.repository'
 import { UsersModule } from './modules/users/users.module'
 
 @Module({
@@ -60,11 +62,13 @@ import { UsersModule } from './modules/users/users.module'
   ],
   controllers: [],
   providers: [
+    UserRedisRepository,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtGuard },
     { provide: APP_GUARD, useClass: CheckPasswordGuard },
     { provide: APP_PIPE, useClass: ValidationPipe },
     EnvService,
+    RedisService,
     JwtStrategy
   ],
   exports: [JwtStrategy]

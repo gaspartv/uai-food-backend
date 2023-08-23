@@ -15,9 +15,9 @@ import { UsersService } from './users.service'
   controllers: [UsersController],
   providers: [
     UserRedisRepository,
-    RedisService,
     UsersService,
     EnvService,
+    RedisService,
     { provide: UserRepository, useClass: UserPrismaRepository }
   ],
   exports: [UsersService]

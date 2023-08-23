@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { PrismaClientTransaction } from '../../../../config/prisma/prisma.interface'
 import { RedisService } from '../../../../config/redis/redis.service'
+import { filterOptions } from '../../../../utils/filter-options-repository.utils'
 import { whereGenerator } from '../../../../utils/where-generator.utils'
 import { UserEntity } from '../../entities/user.entity'
 import {
@@ -12,10 +13,7 @@ import { UserRepository } from '../user.repository'
 
 @Injectable()
 export class UserRedisRepository implements UserRepository {
-  constructor(
-    private readonly redis: RedisService,
-    private readonly prisma: PrismaClient
-  ) {}
+  constructor(private readonly redis: RedisService) {}
 
   private include = {
     Address: true,
@@ -28,7 +26,13 @@ export class UserRedisRepository implements UserRepository {
     tx: PrismaClientTransaction,
     data: Prisma.UserUncheckedCreateInput
   ): Promise<UserEntity> {
-    return await tx.user.create({ data, include: this.include })
+    const user = await tx.user.create({ data, include: this.include })
+
+    await this.redis.del('users')
+
+    await this.redis.set(user.id, JSON.stringify(user))
+
+    return user
   }
 
   async updateUserById(
@@ -36,7 +40,17 @@ export class UserRedisRepository implements UserRepository {
     id: string,
     data: Prisma.UserUncheckedUpdateInput
   ): Promise<UserEntity> {
-    return await tx.user.update({ where: { id }, data, include: this.include })
+    const user = await tx.user.update({
+      where: { id },
+      data,
+      include: this.include
+    })
+
+    await this.redis.del('users')
+
+    await this.redis.set(user.id, JSON.stringify(user))
+
+    return user
   }
 
   async findUserByEmail(
@@ -44,10 +58,27 @@ export class UserRedisRepository implements UserRepository {
     email: string,
     options: IFindOptions
   ): Promise<UserEntity> {
-    return await tx.user.findFirst({
-      where: { ...whereGenerator(options), email },
-      include: this.include
-    })
+    let user: UserEntity
+
+    const cached = await this.redis.get('users')
+
+    if (cached) {
+      const users: UserEntity[] = JSON.parse(cached)
+      user = filterOptions(users, options).find(
+        (user: UserEntity) => user.email === email
+      )
+    } else {
+      user = await tx.user.findFirst({
+        where: { ...whereGenerator(options), email },
+        include: this.include
+      })
+    }
+
+    if (user) {
+      await this.redis.set(user.id, JSON.stringify(user))
+    }
+
+    return user
   }
 
   async findUserByLogin(
@@ -55,10 +86,27 @@ export class UserRedisRepository implements UserRepository {
     login: string,
     options: IFindOptions
   ): Promise<UserEntity> {
-    return await tx.user.findFirst({
-      where: { ...whereGenerator(options), login },
-      include: this.include
-    })
+    let user: UserEntity
+
+    const cached = await this.redis.get('users')
+
+    if (cached) {
+      const users: UserEntity[] = JSON.parse(cached)
+      user = filterOptions(users, options).find(
+        (user: UserEntity) => user.login === login
+      )
+    } else {
+      user = await tx.user.findFirst({
+        where: { ...whereGenerator(options), login },
+        include: this.include
+      })
+    }
+
+    if (user) {
+      await this.redis.set(user.id, JSON.stringify(user))
+    }
+
+    return user
   }
 
   async findUserById(
@@ -66,91 +114,136 @@ export class UserRedisRepository implements UserRepository {
     id: string,
     options: IFindOptions
   ): Promise<UserEntity> {
-    return await tx.user.findFirst({
-      where: { ...whereGenerator(options), id },
-      include: this.include
-    })
+    let user: UserEntity
+
+    const cachedUser = await this.redis.get(id)
+
+    if (cachedUser) {
+      return JSON.parse(cachedUser)
+    }
+
+    const cached = await this.redis.get('users')
+
+    if (cached) {
+      const users: UserEntity[] = JSON.parse(cached)
+
+      user = filterOptions(users, options).find(
+        (user: UserEntity) => user.id === id
+      )
+    } else {
+      user = await tx.user.findFirst({
+        where: { ...whereGenerator(options), id },
+        include: this.include
+      })
+    }
+
+    if (user) {
+      await this.redis.set(user.id, JSON.stringify(user))
+    }
+
+    return user
   }
 
   async countUsers(
     tx: PrismaClientTransaction,
     options: IPaginationOptions
   ): Promise<number> {
-    return await tx.user.count({
-      where: { ...whereGenerator(options) }
-    })
+    return await tx.user.count({ where: { ...whereGenerator(options) } })
   }
 
   async findAllUsersForPagination(
     tx: PrismaClientTransaction,
     { skip, take, ...options }: IPaginationOptions
   ): Promise<UserEntity[]> {
-    const cached =
-      'findAllUsersForPagination' + options.deletedAt + options.disabledAt
+    let users: UserEntity[] = []
 
-    const cachedUsers = await this.redis.get(`${cached}`)
+    const cached = await this.redis.get('users')
 
-    if (!cachedUsers) {
-      const users = await tx.user.findMany({
-        where: { ...whereGenerator(options) },
-        skip,
-        take,
-        include: this.include
-      })
-
-      await this.redis.set(`${cached}`, JSON.stringify(users))
-
-      return users
+    if (cached) {
+      users = JSON.parse(cached)
+    } else {
+      users = await tx.user.findMany({ include: this.include })
     }
 
-    return JSON.parse(cachedUsers)
+    await this.redis.set('users', JSON.stringify(users))
+
+    return filterOptions(users, options)
+
+    // return await tx.user.findMany({
+    //   where: { ...whereGenerator(options) },
+    //   skip,
+    //   take,
+    //   include: this.include
+    // })
   }
 
   async disableUserById(
     tx: PrismaClientTransaction,
     id: string
   ): Promise<UserEntity> {
-    return await tx.user.update({
+    const user = await tx.user.update({
       where: { id },
       data: { disabledAt: new Date() },
       include: this.include
     })
+
+    await this.redis.del('users')
+
+    await this.redis.set(user.id, JSON.stringify(user))
+
+    return user
   }
 
   async enableUserById(
     tx: PrismaClientTransaction,
     id: string
   ): Promise<UserEntity> {
-    return await tx.user.update({
+    const user = await tx.user.update({
       where: { id },
       data: { disabledAt: null },
       include: this.include
     })
+
+    await this.redis.del('users')
+
+    await this.redis.set(user.id, JSON.stringify(user))
+
+    return user
   }
 
   async deleteUserById(
     tx: PrismaClientTransaction,
     id: string
   ): Promise<UserEntity> {
-    return await tx.user.update({
+    const user = await tx.user.update({
       where: { id },
       data: { disabledAt: new Date(), deletedAt: new Date() },
       include: this.include
     })
+
+    await this.redis.del('users')
+
+    await this.redis.set(user.id, JSON.stringify(user))
+
+    return user
   }
 
   async findAllUsers(
     tx: PrismaClientTransaction,
     options: IFindOptions
   ): Promise<UserEntity[]> {
-    const cachedUsers = await this.redis.get('users')
+    let users: UserEntity[] = []
 
-    if (!cachedUsers) {
-      console.log('sem cache')
-      // return await this.prisma.findAllUsers(tx, options)
+    const cached = await this.redis.get('users')
+
+    if (cached) {
+      users = JSON.parse(cached)
+    } else {
+      users = await tx.user.findMany({ include: this.include })
     }
-    console.log('com cache')
 
-    return JSON.parse(cachedUsers)
+    await this.redis.set('users', JSON.stringify(users))
+
+    return filterOptions(users, options)
   }
 }

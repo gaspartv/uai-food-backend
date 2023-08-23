@@ -8,6 +8,8 @@ import {
 import { Reflector } from '@nestjs/core'
 import { PrismaClient } from '@prisma/client'
 import { compare } from 'bcryptjs'
+import { RedisService } from '../../config/redis/redis.service'
+import { UserEntity } from '../../modules/users/entities/user.entity'
 import { UsersService } from '../../modules/users/users.service'
 import { IS_PASSWORD_CHECK_REQUIRED } from '../decorators/check-password.decorator'
 
@@ -16,7 +18,8 @@ export class CheckPasswordGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private usersService: UsersService,
-    private prisma: PrismaClient
+    private prisma: PrismaClient,
+    private readonly redis: RedisService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -38,10 +41,28 @@ export class CheckPasswordGuard implements CanActivate {
     data: { sub: string; password: string },
     url: string
   ): Promise<void> {
-    const user = await this.usersService.findUserById(this.prisma, data.sub, {
-      deletedAt: false,
-      disabledAt: url.includes('users/enable') ? undefined : false
-    })
+    let user: UserEntity
+
+    const cachedUser = await this.redis.get(data.sub)
+
+    if (cachedUser) {
+      const userCached: UserEntity = JSON.parse(cachedUser)
+
+      if (userCached.deletedAt === null) {
+        if (url.includes('users/enable')) {
+          user = userCached
+        }
+
+        if (userCached.disabledAt === null) {
+          user = userCached
+        }
+      }
+    } else {
+      user = await this.usersService.findUserById(this.prisma, data.sub, {
+        deletedAt: false,
+        disabledAt: url.includes('users/enable') ? undefined : false
+      })
+    }
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials.')

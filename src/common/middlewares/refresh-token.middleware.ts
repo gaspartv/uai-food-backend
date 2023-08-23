@@ -7,7 +7,9 @@ import { JwtService } from '@nestjs/jwt'
 import { PrismaClient } from '@prisma/client'
 import { NextFunction } from 'express'
 import { FastifyReply } from 'fastify'
+import { RedisService } from '../../config/redis/redis.service'
 import { SessionsService } from '../../modules/sessions/sessions.service'
+import { UserEntity } from '../../modules/users/entities/user.entity'
 import { UsersService } from '../../modules/users/users.service'
 import { expiresAtGenerator } from '../../utils/expires-generator.utils'
 import { IPayload } from '../interfaces/payload.interface'
@@ -19,7 +21,8 @@ export class RefreshTokenMiddleware implements NestMiddleware {
     private readonly prisma: PrismaClient,
     private readonly jwtService: JwtService,
     private readonly sessionsService: SessionsService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly redis: RedisService
   ) {}
 
   async use(req: IRequest, res: FastifyReply, next: NextFunction) {
@@ -40,12 +43,22 @@ export class RefreshTokenMiddleware implements NestMiddleware {
       ) {
         throw new UnauthorizedException('Invalid token.')
       }
+      let user: UserEntity
 
-      const user = await this.usersService.findUserById(
-        this.prisma,
-        decoded.sign.sub,
-        { deletedAt: false, disabledAt: false }
-      )
+      const cachedUser = await this.redis.get(decoded.sign.sub)
+      if (cachedUser) {
+        const userCached: UserEntity = JSON.parse(cachedUser)
+
+        if (userCached.deletedAt === null && userCached.disabledAt === null) {
+          user = userCached
+        }
+      } else {
+        user = await this.usersService.findUserById(
+          this.prisma,
+          decoded.sign.sub,
+          { deletedAt: false, disabledAt: false }
+        )
+      }
 
       if (!user) {
         throw new UnauthorizedException('Invalid token.')
