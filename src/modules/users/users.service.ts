@@ -27,13 +27,13 @@ export class UsersService {
 
   async createUser(
     tx: PrismaClientTransaction,
-    { address, password, ...dto }: CreateUserDto
+    { address, password, ...data }: CreateUserDto
   ): Promise<UserEntity> {
-    await this.verifyUserExistsByEmail(tx, dto.email, {
+    await this.verifyUserExistsByEmail(tx, data.email, {
       deletedAt: undefined,
       disabledAt: undefined
     })
-    await this.verifyUserExistsByLogin(tx, dto.login, {
+    await this.verifyUserExistsByLogin(tx, data.login, {
       deletedAt: undefined,
       disabledAt: undefined
     })
@@ -46,7 +46,7 @@ export class UsersService {
     )
 
     return await this.userRepository.createUser(tx, {
-      ...dto,
+      ...data,
       password_hash,
       addressId: addressCreate.id
     })

@@ -13,7 +13,10 @@ import { UserRepository } from '../user.repository'
 
 @Injectable()
 export class UserRedisRepository implements UserRepository {
-  constructor(private readonly redis: RedisService) {}
+  constructor(
+    private readonly redis: RedisService,
+    private readonly repository: UserRepository
+  ) {}
 
   private include = {
     Address: true,
@@ -26,7 +29,7 @@ export class UserRedisRepository implements UserRepository {
     tx: PrismaClientTransaction,
     data: Prisma.UserUncheckedCreateInput
   ): Promise<UserEntity> {
-    const user = await tx.user.create({ data, include: this.include })
+    const user = await this.repository.createUser(tx, data)
 
     await this.redis.del('users')
 
@@ -40,11 +43,7 @@ export class UserRedisRepository implements UserRepository {
     id: string,
     data: Prisma.UserUncheckedUpdateInput
   ): Promise<UserEntity> {
-    const user = await tx.user.update({
-      where: { id },
-      data,
-      include: this.include
-    })
+    const user = await this.repository.updateUserById(tx, id, data)
 
     await this.redis.del('users')
 
@@ -57,7 +56,7 @@ export class UserRedisRepository implements UserRepository {
     tx: PrismaClientTransaction,
     email: string,
     options: IFindOptions
-  ): Promise<UserEntity> {
+  ): Promise<UserEntity | null> {
     let user: UserEntity
 
     const cached = await this.redis.get('users')
@@ -68,10 +67,7 @@ export class UserRedisRepository implements UserRepository {
         (user: UserEntity) => user.email === email
       )
     } else {
-      user = await tx.user.findFirst({
-        where: { ...whereGenerator(options), email },
-        include: this.include
-      })
+      user = await this.repository.findUserByEmail(tx, email, options)
     }
 
     if (user) {
@@ -92,14 +88,12 @@ export class UserRedisRepository implements UserRepository {
 
     if (cached) {
       const users: UserEntity[] = JSON.parse(cached)
-      user = filterOptions(users, options).find(
-        (user: UserEntity) => user.login === login
-      )
+
+      const usersFind = users.find((user) => user.login === login)
+
+      user = filterOptions(Array(usersFind), options)[0]
     } else {
-      user = await tx.user.findFirst({
-        where: { ...whereGenerator(options), login },
-        include: this.include
-      })
+      user = await this.repository.findUserByLogin(tx, login, options)
     }
 
     if (user) {
