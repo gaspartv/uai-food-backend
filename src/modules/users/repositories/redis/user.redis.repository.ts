@@ -21,8 +21,9 @@ export class UserRedisRepository implements UserRepository {
   private include = {
     Address: true,
     Purchases: true,
-    Stars: true,
-    StorePermissions: { where: { deletedAt: null, disabledAt: null } }
+    Assessments: true,
+    Permissions: { where: { deletedAt: null, disabledAt: null } },
+    Conversations: true
   }
 
   async createUser(

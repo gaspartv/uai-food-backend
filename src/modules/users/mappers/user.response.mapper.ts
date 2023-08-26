@@ -33,8 +33,9 @@ export class UserResponseMapper {
         complement: user.Address.complement
       },
       Purchases: user.Purchases,
-      Stars: user.Stars,
-      StorePermissions: user.StorePermissions
+      Permissions: user.Permissions,
+      Assessments: user.Assessments,
+      Conversations: user.Conversations
     }
   }
 }

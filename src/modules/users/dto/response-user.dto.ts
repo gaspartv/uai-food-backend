@@ -1,6 +1,7 @@
 import { ELanguage } from '@prisma/client'
 import { AddressWithNotRelationsEntity } from '../../addresses/entities/address.entity'
-import { AssessmentWithNotRelationsEntity } from '../../assessments/entities/star.entity'
+import { AssessmentWithNotRelationsEntity } from '../../assessments/entities/assessment.entity'
+import { ConversationWithNotRelationsEntity } from '../../conversation/entities/conversation.entity'
 import { PermissionWithNotRelationsEntity } from '../../permissions/entities/permission.entity'
 import { PurchaseWithNotRelationsEntity } from '../../purchases/entities/purchase.entity'
 
@@ -22,8 +23,9 @@ export class ResponseUserDto {
   disabledAt?: Date
   Address: AddressWithNotRelationsEntity
   Purchases: PurchaseWithNotRelationsEntity[]
-  Stars: AssessmentWithNotRelationsEntity[]
-  StorePermissions: PermissionWithNotRelationsEntity[]
+  Assessments: AssessmentWithNotRelationsEntity[]
+  Permissions: PermissionWithNotRelationsEntity[]
+  Conversations: ConversationWithNotRelationsEntity[]
 }
 
 export class ResponseUserPaginationDto {

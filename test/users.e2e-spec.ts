@@ -69,8 +69,8 @@ describe('Users Controller (e2e)', () => {
     expect(body.disabledAt).toBeDefined()
     expect(body.Address).toBeDefined()
     expect(body.Purchases).toBeDefined()
-    expect(body.Stars).toBeDefined()
-    expect(body.StorePermissions).toBeDefined()
+    expect(body.Assessments).toBeDefined()
+    expect(body.Permissions).toBeDefined()
 
     expect(body).toMatchObject({
       id: body.id,
@@ -100,8 +100,9 @@ describe('Users Controller (e2e)', () => {
         complement: 'ap 111'
       },
       Purchases: [],
-      Stars: [],
-      StorePermissions: []
+      Assessments: [],
+      Permissions: [],
+      Conversations: []
     })
 
     expect({
@@ -132,8 +133,9 @@ describe('Users Controller (e2e)', () => {
         complement: 'ap 111'
       },
       Purchases: [],
-      Stars: [],
-      StorePermissions: []
+      Assessments: [],
+      Permissions: [],
+      Conversations: []
     }).toMatchObject(body)
   })
 })
