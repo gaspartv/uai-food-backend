@@ -112,7 +112,7 @@ CREATE TABLE "stores" (
 );
 
 -- CreateTable
-CREATE TABLE "stars" (
+CREATE TABLE "assessments" (
     "id" UUID NOT NULL,
     "value" INTEGER NOT NULL DEFAULT 5,
     "comment" TEXT,
@@ -120,7 +120,7 @@ CREATE TABLE "stars" (
     "purchaseId" UUID NOT NULL,
     "storeId" UUID NOT NULL,
 
-    CONSTRAINT "stars_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "assessments_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -130,6 +130,13 @@ CREATE TABLE "categories" (
     "description" TEXT NOT NULL,
 
     CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Conversation" (
+    "id" UUID NOT NULL,
+
+    CONSTRAINT "Conversation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -178,16 +185,19 @@ CREATE UNIQUE INDEX "stores_identifier_key" ON "stores"("identifier");
 CREATE UNIQUE INDEX "stores_addressId_key" ON "stores"("addressId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "stars_id_key" ON "stars"("id");
+CREATE UNIQUE INDEX "assessments_id_key" ON "assessments"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "stars_purchaseId_key" ON "stars"("purchaseId");
+CREATE UNIQUE INDEX "assessments_purchaseId_key" ON "assessments"("purchaseId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "categories_id_key" ON "categories"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Conversation_id_key" ON "Conversation"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_CategoryToStore_AB_unique" ON "_CategoryToStore"("A", "B");
@@ -217,13 +227,13 @@ ALTER TABLE "permissions" ADD CONSTRAINT "permissions_storeId_fkey" FOREIGN KEY 
 ALTER TABLE "stores" ADD CONSTRAINT "stores_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "addresses"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "stars" ADD CONSTRAINT "stars_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "assessments" ADD CONSTRAINT "assessments_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "stars" ADD CONSTRAINT "stars_purchaseId_fkey" FOREIGN KEY ("purchaseId") REFERENCES "purchases"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "assessments" ADD CONSTRAINT "assessments_purchaseId_fkey" FOREIGN KEY ("purchaseId") REFERENCES "purchases"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "stars" ADD CONSTRAINT "stars_storeId_fkey" FOREIGN KEY ("storeId") REFERENCES "stores"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "assessments" ADD CONSTRAINT "assessments_storeId_fkey" FOREIGN KEY ("storeId") REFERENCES "stores"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_CategoryToStore" ADD CONSTRAINT "_CategoryToStore_A_fkey" FOREIGN KEY ("A") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;

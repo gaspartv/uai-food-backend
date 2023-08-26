@@ -1,6 +1,6 @@
 import { ERating, EStatus } from '@prisma/client'
 import { Type } from 'class-transformer'
-import { StarWithNotRelationsEntity } from '../../stars/entities/star.entity'
+import { AssessmentWithNotRelationsEntity } from '../../assessments/entities/star.entity'
 import { StoreWithNotRelationsEntity } from '../../stores/entities/store.entity'
 import { UserWithNotRelationsEntity } from '../../users/entities/user.entity'
 
@@ -20,6 +20,6 @@ export class PurchaseEntity extends PurchaseWithNotRelationsEntity {
   @Type(() => UserWithNotRelationsEntity)
   User: UserWithNotRelationsEntity
 
-  @Type(() => StarWithNotRelationsEntity)
-  Star?: StarWithNotRelationsEntity
+  @Type(() => AssessmentWithNotRelationsEntity)
+  Star?: AssessmentWithNotRelationsEntity
 }

@@ -121,10 +121,11 @@ model User {
   Address   Address @relation(fields: [addressId], references: [id])
   addressId String  @unique @db.Uuid
 
-  Purchases        Purchase[]
-  StorePermissions Permission[]
-  Stars            Star[]
-  Session          Session[]
+  Purchases     Purchase[]
+  Permissions   Permission[]
+  Assessments   Assessment[]
+  Sessions      Session[]
+  Conversations Conversation[]
 
   @@map("users")
 }
@@ -144,7 +145,7 @@ model Purchase {
   Store   Store  @relation(fields: [storeId], references: [id])
   storeId String @db.Uuid
 
-  Star Star?
+  Assessment Assessment?
 
   @@map("purchases")
 }
@@ -188,14 +189,15 @@ model Store {
   addressId String  @unique @db.Uuid
 
   Purchases       Purchase[]
-  Stars           Star[]
+  Assessments     Assessment[]
   Categories      Category[]
   UsersPermission Permission[]
+  Conversations   Conversation[]
 
   @@map("stores")
 }
 
-model Star {
+model Assessment {
   id String @id @unique @default(uuid()) @db.Uuid
 
   value   Int     @default(5)
@@ -210,7 +212,7 @@ model Star {
   Store   Store  @relation(fields: [storeId], references: [id])
   storeId String @db.Uuid
 
-  @@map("stars")
+  @@map("assessments")
 }
 
 model Category {
@@ -222,4 +224,15 @@ model Category {
   Stores Store[]
 
   @@map("categories")
+}
+
+model Conversation {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  Users User[]
+
+  Store   Store?  @relation(fields: [storeId], references: [id])
+  storeId String? @db.Uuid
+
+  @@map("conversations")
 }

@@ -3,7 +3,7 @@ import { PurchaseWithNotRelationsEntity } from '../../purchases/entities/purchas
 import { StoreWithNotRelationsEntity } from '../../stores/entities/store.entity'
 import { UserWithNotRelationsEntity } from '../../users/entities/user.entity'
 
-export class StarWithNotRelationsEntity {
+export class AssessmentWithNotRelationsEntity {
   id: string
   value: number
   comment?: string
@@ -12,7 +12,7 @@ export class StarWithNotRelationsEntity {
   storeId: string
 }
 
-export class StarEntity extends StarWithNotRelationsEntity {
+export class AssessmentEntity extends AssessmentWithNotRelationsEntity {
   @Type(() => UserWithNotRelationsEntity)
   User: UserWithNotRelationsEntity
 

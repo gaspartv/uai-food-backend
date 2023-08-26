@@ -7,16 +7,16 @@ import {
   Patch,
   Post
 } from '@nestjs/common'
-import { CreateStarDto } from './dto/create-star.dto'
-import { UpdateStarDto } from './dto/update-star.dto'
-import { StarsService } from './stars.service'
+import { AssessmentsService } from './assessments.service'
+import { CreateAssessmentDto } from './dto/create-star.dto'
+import { UpdateAssessmentDto } from './dto/update-star.dto'
 
 @Controller('stars')
-export class StarsController {
-  constructor(private readonly starsService: StarsService) {}
+export class AssessmentsController {
+  constructor(private readonly starsService: AssessmentsService) {}
 
   @Post()
-  create(@Body() createStarDto: CreateStarDto) {
+  create(@Body() createStarDto: CreateAssessmentDto) {
     return this.starsService.create(createStarDto)
   }
 
@@ -31,7 +31,7 @@ export class StarsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStarDto: UpdateStarDto) {
+  update(@Param('id') id: string, @Body() updateStarDto: UpdateAssessmentDto) {
     return this.starsService.update(+id, updateStarDto)
   }
 

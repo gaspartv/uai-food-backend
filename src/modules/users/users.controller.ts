@@ -53,25 +53,20 @@ export class UsersController {
   }
 
   @CheckPassword()
-  @Patch('edit/:id')
+  @Patch(':id/edit')
   async updateUserById(
     @Sign() sign: ISign,
     @Param('id') id: any,
-    @Body() updateUserDto: UpdateUserDto
+    @Body() dto: UpdateUserDto
   ): Promise<ResponseUserDto> {
     const user = await this.prisma.$transaction(async (tx) => {
-      return await this.usersService.updateUserById(
-        tx,
-        id,
-        sign.sub,
-        updateUserDto
-      )
+      return await this.usersService.updateUserById(tx, id, sign.sub, dto)
     })
 
     return plainToInstance(UserEntity, user)
   }
 
-  @Get()
+  @Get('all')
   async findAllUsersForPagination(
     @Query('disabled', new OptionalParseBollPipe())
     disabledAt: boolean | undefined,
@@ -114,7 +109,7 @@ export class UsersController {
     }
   }
 
-  @Get('find/:id')
+  @Get(':id/find')
   async findOne(
     @Query('disabled', new OptionalParseBollPipe())
     disabledAt: boolean | undefined,
@@ -134,7 +129,7 @@ export class UsersController {
   }
 
   @CheckPassword()
-  @Patch('enable/:id')
+  @Patch(':id/enable')
   async enableUserById(
     @Param('id') id: string,
     @Sign() sign: ISign,
@@ -148,7 +143,7 @@ export class UsersController {
   }
 
   @CheckPassword()
-  @Patch('disable/:id')
+  @Patch(':id/disable')
   async disableUserById(
     @Param('id') id: string,
     @Sign() sign: ISign,
@@ -162,7 +157,7 @@ export class UsersController {
   }
 
   @CheckPassword()
-  @Patch('delete/:id')
+  @Patch(':id/delete')
   async deleteUserById(
     @Param('id') id: string,
     @Sign() sign: ISign,
