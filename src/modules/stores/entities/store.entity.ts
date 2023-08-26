@@ -1,9 +1,9 @@
 import { Type } from 'class-transformer'
 import { AddressWithNotRelationsEntity } from '../../addresses/entities/address.entity'
 import { CategoryWithNotRelationsEntity } from '../../categories/entities/category.entity'
+import { PermissionWithNotRelationsEntity } from '../../permissions/entities/permission.entity'
 import { PurchaseWithNotRelationsEntity } from '../../purchases/entities/purchase.entity'
 import { StarWithNotRelationsEntity } from '../../stars/entities/star.entity'
-import { StorePermissionWithNotRelationsEntity } from '../../store-permissions/entities/store-permission.entity'
 
 export class StoreWithNotRelationsEntity {
   id: string
@@ -34,6 +34,6 @@ export class StoreEntity extends StoreWithNotRelationsEntity {
   @Type(() => CategoryWithNotRelationsEntity)
   Categories: CategoryWithNotRelationsEntity[]
 
-  @Type(() => StorePermissionWithNotRelationsEntity)
-  UsersPermission: StorePermissionWithNotRelationsEntity[]
+  @Type(() => PermissionWithNotRelationsEntity)
+  UsersPermission: PermissionWithNotRelationsEntity[]
 }

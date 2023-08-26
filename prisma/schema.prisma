@@ -122,7 +122,7 @@ model User {
   addressId String  @unique @db.Uuid
 
   Purchases        Purchase[]
-  StorePermissions StorePermission[]
+  StorePermissions Permission[]
   Stars            Star[]
   Session          Session[]
 
@@ -149,7 +149,7 @@ model Purchase {
   @@map("purchases")
 }
 
-model StorePermission {
+model Permission {
   id String @id @unique @default(uuid()) @db.Uuid
 
   createdAt  DateTime  @default(now())
@@ -165,7 +165,7 @@ model StorePermission {
   Store   Store?  @relation(fields: [storeId], references: [id])
   storeId String? @db.Uuid
 
-  @@map("store-permission")
+  @@map("permissions")
 }
 
 model Store {
@@ -190,7 +190,7 @@ model Store {
   Purchases       Purchase[]
   Stars           Star[]
   Categories      Category[]
-  UsersPermission StorePermission[]
+  UsersPermission Permission[]
 
   @@map("stores")
 }

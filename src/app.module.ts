@@ -21,12 +21,11 @@ import { RedisService } from './config/redis/redis.service'
 import { AddressesModule } from './modules/addresses/addresses.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { CategoriesModule } from './modules/categories/categories.module'
+import { PermissionsModule } from './modules/permissions/permissions.module'
 import { PurchasesModule } from './modules/purchases/purchases.module'
 import { SessionsModule } from './modules/sessions/sessions.module'
 import { StarsModule } from './modules/stars/stars.module'
-import { StorePermissionsModule } from './modules/store-permissions/store-permissions.module'
 import { StoresModule } from './modules/stores/stores.module'
-import { UserRedisRepository } from './modules/users/repositories/redis/user.redis.repository'
 import { UsersModule } from './modules/users/users.module'
 
 @Module({
@@ -56,13 +55,12 @@ import { UsersModule } from './modules/users/users.module'
     AddressesModule,
     StoresModule,
     CategoriesModule,
-    StorePermissionsModule,
+    PermissionsModule,
     AuthModule,
     SessionsModule
   ],
   controllers: [],
   providers: [
-    UserRedisRepository,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtGuard },
     { provide: APP_GUARD, useClass: CheckPasswordGuard },

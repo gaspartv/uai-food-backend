@@ -1,24 +1,22 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
+  Controller,
+  Delete,
+  Get,
   Param,
-  Delete
+  Patch,
+  Post
 } from '@nestjs/common'
-import { StorePermissionsService } from './store-permissions.service'
-import { CreateStorePermissionDto } from './dto/create-store-permission.dto'
-import { UpdateStorePermissionDto } from './dto/update-store-permission.dto'
+import { CreatePermissionDto } from './dto/create-permission.dto'
+import { UpdatePermissionDto } from './dto/update-permission.dto'
+import { PermissionsService } from './permissions.service'
 
-@Controller('store-permissions')
-export class StorePermissionsController {
-  constructor(
-    private readonly storePermissionsService: StorePermissionsService
-  ) {}
+@Controller('permissions')
+export class PermissionsController {
+  constructor(private readonly storePermissionsService: PermissionsService) {}
 
   @Post()
-  create(@Body() createStorePermissionDto: CreateStorePermissionDto) {
+  create(@Body() createStorePermissionDto: CreatePermissionDto) {
     return this.storePermissionsService.create(createStorePermissionDto)
   }
 
@@ -35,7 +33,7 @@ export class StorePermissionsController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateStorePermissionDto: UpdateStorePermissionDto
+    @Body() updateStorePermissionDto: UpdatePermissionDto
   ) {
     return this.storePermissionsService.update(+id, updateStorePermissionDto)
   }

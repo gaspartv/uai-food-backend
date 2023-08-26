@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { CreateStorePermissionDto } from './dto/create-store-permission.dto'
-import { UpdateStorePermissionDto } from './dto/update-store-permission.dto'
+import { CreatePermissionDto } from './dto/create-permission.dto'
+import { UpdatePermissionDto } from './dto/update-permission.dto'
 
 @Injectable()
-export class StorePermissionsService {
-  create(createStorePermissionDto: CreateStorePermissionDto) {
+export class PermissionsService {
+  create(createStorePermissionDto: CreatePermissionDto) {
     return 'This action adds a new storePermission'
   }
 
@@ -16,7 +16,7 @@ export class StorePermissionsService {
     return `This action returns a #${id} storePermission`
   }
 
-  update(id: number, updateStorePermissionDto: UpdateStorePermissionDto) {
+  update(id: number, updateStorePermissionDto: UpdatePermissionDto) {
     return `This action updates a #${id} storePermission`
   }
 

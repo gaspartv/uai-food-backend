@@ -79,7 +79,7 @@ CREATE TABLE "purchases" (
 );
 
 -- CreateTable
-CREATE TABLE "store-permission" (
+CREATE TABLE "permissions" (
     "id" UUID NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE "store-permission" (
     "userId" UUID,
     "storeId" UUID,
 
-    CONSTRAINT "store-permission_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "permissions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -160,7 +160,7 @@ CREATE UNIQUE INDEX "users_addressId_key" ON "users"("addressId");
 CREATE UNIQUE INDEX "purchases_id_key" ON "purchases"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "store-permission_id_key" ON "store-permission"("id");
+CREATE UNIQUE INDEX "permissions_id_key" ON "permissions"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "stores_id_key" ON "stores"("id");
@@ -208,10 +208,10 @@ ALTER TABLE "purchases" ADD CONSTRAINT "purchases_userId_fkey" FOREIGN KEY ("use
 ALTER TABLE "purchases" ADD CONSTRAINT "purchases_storeId_fkey" FOREIGN KEY ("storeId") REFERENCES "stores"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "store-permission" ADD CONSTRAINT "store-permission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "permissions" ADD CONSTRAINT "permissions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "store-permission" ADD CONSTRAINT "store-permission_storeId_fkey" FOREIGN KEY ("storeId") REFERENCES "stores"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "permissions" ADD CONSTRAINT "permissions_storeId_fkey" FOREIGN KEY ("storeId") REFERENCES "stores"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "stores" ADD CONSTRAINT "stores_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "addresses"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

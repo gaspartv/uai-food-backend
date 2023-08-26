@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { StorePermissionsService } from './store-permissions.service'
+import { PermissionsService } from './permissions.service'
 
 describe('StorePermissionsService', () => {
-  let service: StorePermissionsService
+  let service: PermissionsService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [StorePermissionsService]
+      providers: [PermissionsService]
     }).compile()
 
-    service = module.get<StorePermissionsService>(StorePermissionsService)
+    service = module.get<PermissionsService>(PermissionsService)
   })
 
   it('should be defined', () => {

@@ -1,9 +1,9 @@
 import { ELanguage, EUserType } from '@prisma/client'
 import { Type } from 'class-transformer'
 import { AddressWithNotRelationsEntity } from '../../addresses/entities/address.entity'
+import { PermissionWithNotRelationsEntity } from '../../permissions/entities/permission.entity'
 import { PurchaseWithNotRelationsEntity } from '../../purchases/entities/purchase.entity'
 import { StarWithNotRelationsEntity } from '../../stars/entities/star.entity'
-import { StorePermissionWithNotRelationsEntity } from '../../store-permissions/entities/store-permission.entity'
 
 export class UserWithNotRelationsEntity {
   id: string
@@ -35,8 +35,8 @@ export class UserEntity extends UserWithNotRelationsEntity {
   @Type(() => PurchaseWithNotRelationsEntity)
   Purchases: PurchaseWithNotRelationsEntity[]
 
-  @Type(() => StorePermissionWithNotRelationsEntity)
-  StorePermissions: StorePermissionWithNotRelationsEntity[]
+  @Type(() => PermissionWithNotRelationsEntity)
+  StorePermissions: PermissionWithNotRelationsEntity[]
 
   @Type(() => StarWithNotRelationsEntity)
   Stars: StarWithNotRelationsEntity[]

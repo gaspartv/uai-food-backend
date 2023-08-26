@@ -1,8 +1,8 @@
 import { ELanguage } from '@prisma/client'
 import { AddressWithNotRelationsEntity } from '../../addresses/entities/address.entity'
+import { PermissionWithNotRelationsEntity } from '../../permissions/entities/permission.entity'
 import { PurchaseWithNotRelationsEntity } from '../../purchases/entities/purchase.entity'
 import { StarWithNotRelationsEntity } from '../../stars/entities/star.entity'
-import { StorePermissionWithNotRelationsEntity } from '../../store-permissions/entities/store-permission.entity'
 
 export class ResponseUserDto {
   id: string
@@ -23,7 +23,7 @@ export class ResponseUserDto {
   Address: AddressWithNotRelationsEntity
   Purchases: PurchaseWithNotRelationsEntity[]
   Stars: StarWithNotRelationsEntity[]
-  StorePermissions: StorePermissionWithNotRelationsEntity[]
+  StorePermissions: PermissionWithNotRelationsEntity[]
 }
 
 export class ResponseUserPaginationDto {

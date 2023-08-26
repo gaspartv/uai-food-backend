@@ -24,12 +24,6 @@ async function bootstrap() {
   // COOKIE
   await app.register(fastifyCookie, { secret: 'uai-food' })
 
-  // CONFIGURAÇÃO DO REDIS
-  // await app.register(RedisModule, {
-  //   host: process.env.REDIS_HOST || 'localhost',
-  //   port: process.env.PORT_REDIS || 6379
-  // })
-
   /// PROTEÇÃO PARA O CABEÇALHO DA APLICAÇÃO ///
   await app.register(helmet)
 

@@ -3,14 +3,14 @@ import { Type } from 'class-transformer'
 import { StoreWithNotRelationsEntity } from '../../stores/entities/store.entity'
 import { UserWithNotRelationsEntity } from '../../users/entities/user.entity'
 
-export class StorePermissionWithNotRelationsEntity {
+export class PermissionWithNotRelationsEntity {
   id: string
   type?: EUserPermission
   userId?: string
   storeId?: string
 }
 
-export class StorePermissionEntity extends StorePermissionWithNotRelationsEntity {
+export class PermissionEntity extends PermissionWithNotRelationsEntity {
   @Type(() => StoreWithNotRelationsEntity)
   Store?: StoreWithNotRelationsEntity
 
