@@ -20,7 +20,7 @@ export class CreateAddressDto {
   province: string
 
   @IsString()
-  zip_code: string
+  zipCode: string
 
   @IsOptional()
   @IsString()

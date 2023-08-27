@@ -63,15 +63,15 @@ export class AuthService {
     return await this.validate(user, password)
   }
 
-  private async validate<T extends { password_hash: string }>(
+  private async validate<T extends { passwordHash: string }>(
     user: T,
     password: string
   ): Promise<T> {
     if (user) {
-      const isPasswordValid = await compare(password, user.password_hash)
+      const isPasswordValid = await compare(password, user.passwordHash)
 
       if (isPasswordValid) {
-        return { ...user, password_hash: undefined }
+        return { ...user, passwordHash: undefined }
       }
     }
 

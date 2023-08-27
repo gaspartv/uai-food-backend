@@ -69,7 +69,7 @@ model Address {
   city          String
   state         String
   province      String
-  zip_code      String
+  zipCode      String
   complement    String?
 
   Store Store?
@@ -107,10 +107,10 @@ model User {
   email         String  @unique
   login         String  @unique
   phone         String
-  password_hash String
+  passwordHash String
   imageUri      String?
 
-  dark_mode Boolean   @default(false)
+  darkMode Boolean   @default(false)
   language  ELanguage @default(PT_BR)
 
   createdAt  DateTime  @default(now())
@@ -172,8 +172,8 @@ model Permission {
 model Store {
   id String @id @unique @default(uuid()) @db.Uuid
 
-  corporate_name String @unique
-  trading_name   String
+  corporateName String @unique
+  tradingName   String
   cnpj           String @unique
   identifier     String @unique
   email          String
@@ -188,11 +188,11 @@ model Store {
   Address   Address @relation(fields: [addressId], references: [id])
   addressId String  @unique @db.Uuid
 
-  Purchases       Purchase[]
-  Assessments     Assessment[]
-  Categories      Category[]
-  UsersPermission Permission[]
-  Conversations   Conversation[]
+  Purchases     Purchase[]
+  Assessments   Assessment[]
+  Categories    Category[]
+  Permissions   Permission[]
+  Conversations Conversation[]
 
   @@map("stores")
 }

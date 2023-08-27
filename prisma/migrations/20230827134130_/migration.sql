@@ -22,7 +22,7 @@ CREATE TABLE "addresses" (
     "city" TEXT NOT NULL,
     "state" TEXT NOT NULL,
     "province" TEXT NOT NULL,
-    "zip_code" TEXT NOT NULL,
+    "zipCode" TEXT NOT NULL,
     "complement" TEXT,
 
     CONSTRAINT "addresses_pkey" PRIMARY KEY ("id")
@@ -53,9 +53,9 @@ CREATE TABLE "users" (
     "email" TEXT NOT NULL,
     "login" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
-    "password_hash" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
     "imageUri" TEXT,
-    "dark_mode" BOOLEAN NOT NULL DEFAULT false,
+    "darkMode" BOOLEAN NOT NULL DEFAULT false,
     "language" "languages" NOT NULL DEFAULT 'PT_BR',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -95,8 +95,8 @@ CREATE TABLE "permissions" (
 -- CreateTable
 CREATE TABLE "stores" (
     "id" UUID NOT NULL,
-    "corporate_name" TEXT NOT NULL,
-    "trading_name" TEXT NOT NULL,
+    "corporateName" TEXT NOT NULL,
+    "tradingName" TEXT NOT NULL,
     "cnpj" TEXT NOT NULL,
     "identifier" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -133,14 +133,21 @@ CREATE TABLE "categories" (
 );
 
 -- CreateTable
-CREATE TABLE "Conversation" (
+CREATE TABLE "conversations" (
     "id" UUID NOT NULL,
+    "storeId" UUID,
 
-    CONSTRAINT "Conversation_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "conversations_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "_CategoryToStore" (
+    "A" UUID NOT NULL,
+    "B" UUID NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_ConversationToUser" (
     "A" UUID NOT NULL,
     "B" UUID NOT NULL
 );
@@ -173,7 +180,7 @@ CREATE UNIQUE INDEX "permissions_id_key" ON "permissions"("id");
 CREATE UNIQUE INDEX "stores_id_key" ON "stores"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "stores_corporate_name_key" ON "stores"("corporate_name");
+CREATE UNIQUE INDEX "stores_corporateName_key" ON "stores"("corporateName");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "stores_cnpj_key" ON "stores"("cnpj");
@@ -197,13 +204,19 @@ CREATE UNIQUE INDEX "categories_id_key" ON "categories"("id");
 CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Conversation_id_key" ON "Conversation"("id");
+CREATE UNIQUE INDEX "conversations_id_key" ON "conversations"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_CategoryToStore_AB_unique" ON "_CategoryToStore"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_CategoryToStore_B_index" ON "_CategoryToStore"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_ConversationToUser_AB_unique" ON "_ConversationToUser"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_ConversationToUser_B_index" ON "_ConversationToUser"("B");
 
 -- AddForeignKey
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -236,7 +249,16 @@ ALTER TABLE "assessments" ADD CONSTRAINT "assessments_purchaseId_fkey" FOREIGN K
 ALTER TABLE "assessments" ADD CONSTRAINT "assessments_storeId_fkey" FOREIGN KEY ("storeId") REFERENCES "stores"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "conversations" ADD CONSTRAINT "conversations_storeId_fkey" FOREIGN KEY ("storeId") REFERENCES "stores"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "_CategoryToStore" ADD CONSTRAINT "_CategoryToStore_A_fkey" FOREIGN KEY ("A") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_CategoryToStore" ADD CONSTRAINT "_CategoryToStore_B_fkey" FOREIGN KEY ("B") REFERENCES "stores"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ConversationToUser" ADD CONSTRAINT "_ConversationToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "conversations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ConversationToUser" ADD CONSTRAINT "_ConversationToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

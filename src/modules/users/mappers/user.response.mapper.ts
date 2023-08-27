@@ -16,7 +16,7 @@ export class UserResponseMapper {
       email: user.email,
       phone: user.phone,
       imageUri: user.imageUri,
-      dark_mode: user.dark_mode,
+      darkMode: user.darkMode,
       language: user.language,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -29,7 +29,7 @@ export class UserResponseMapper {
         city: user.Address.city,
         state: user.Address.state,
         province: user.Address.province,
-        zip_code: user.Address.zip_code,
+        zipCode: user.Address.zipCode,
         complement: user.Address.complement
       },
       Purchases: user.Purchases,

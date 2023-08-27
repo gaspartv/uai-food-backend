@@ -6,7 +6,7 @@ export class AddressWithNotRelationsEntity {
   city: string
   state: string
   province: string
-  zip_code: string
+  zipCode: string
   complement?: string
 }
 

@@ -68,7 +68,7 @@ export class CheckPasswordGuard implements CanActivate {
       throw new UnauthorizedException('Invalid credentials.')
     }
 
-    const passwordValid = await compare(data.password, user.password_hash)
+    const passwordValid = await compare(data.password, user.passwordHash)
 
     if (!passwordValid) {
       throw new UnauthorizedException('Invalid credentials.')

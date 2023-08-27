@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { CreateStoreDto } from './dto/create-store.dto'
 import { UpdateStoreDto } from './dto/update-store.dto'
+import { StoreRepository } from './repositories/stores.repository'
 
 @Injectable()
 export class StoresService {
-  create(createStoreDto: CreateStoreDto) {
+  constructor(private readonly storeRepository: StoreRepository) {}
+
+  async create(createStoreDto: CreateStoreDto) {
     return 'This action adds a new store'
   }
 

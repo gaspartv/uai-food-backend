@@ -4,7 +4,10 @@ import { PrismaClientTransaction } from '../../../../config/prisma/prisma.interf
 import { RedisService } from '../../../../config/redis/redis.service'
 import { filterOptions } from '../../../../utils/filter-options-repository.utils'
 import { whereGenerator } from '../../../../utils/where-generator.utils'
-import { UserEntity } from '../../entities/user.entity'
+import {
+  UserEntity,
+  UserWithNotRelationsEntity
+} from '../../entities/user.entity'
 import {
   IFindOptions,
   IPaginationOptions
@@ -17,14 +20,6 @@ export class UserRedisRepository implements UserRepository {
     private readonly redis: RedisService,
     private readonly repository: UserRepository
   ) {}
-
-  private include = {
-    Address: true,
-    Purchases: true,
-    Assessments: true,
-    Permissions: { where: { deletedAt: null, disabledAt: null } },
-    Conversations: true
-  }
 
   async createUser(
     tx: PrismaClientTransaction,
@@ -128,7 +123,13 @@ export class UserRedisRepository implements UserRepository {
     } else {
       user = await tx.user.findFirst({
         where: { ...whereGenerator(options), id },
-        include: this.include
+        include: {
+          Address: true,
+          Purchases: true,
+          Assessments: true,
+          Permissions: { where: { deletedAt: null, disabledAt: null } },
+          Conversations: true
+        }
       })
     }
 
@@ -150,7 +151,7 @@ export class UserRedisRepository implements UserRepository {
     tx: PrismaClientTransaction,
     { skip, take, ...options }: IPaginationOptions
   ): Promise<UserEntity[]> {
-    let users: UserEntity[] = []
+    let users: UserWithNotRelationsEntity[]
 
     const cached = await this.redis.get('users')
 
@@ -160,7 +161,7 @@ export class UserRedisRepository implements UserRepository {
       return filterOptions(users, options)
     }
 
-    users = await tx.user.findMany({ include: this.include })
+    users = await tx.user.findMany()
 
     await this.redis.set('users', JSON.stringify(users))
 
@@ -168,7 +169,13 @@ export class UserRedisRepository implements UserRepository {
       where: { ...whereGenerator(options) },
       skip,
       take,
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
   }
 
@@ -179,7 +186,13 @@ export class UserRedisRepository implements UserRepository {
     const user = await tx.user.update({
       where: { id },
       data: { disabledAt: new Date() },
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
 
     await this.redis.del('users')
@@ -196,7 +209,13 @@ export class UserRedisRepository implements UserRepository {
     const user = await tx.user.update({
       where: { id },
       data: { disabledAt: null },
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
 
     await this.redis.del('users')
@@ -213,7 +232,13 @@ export class UserRedisRepository implements UserRepository {
     const user = await tx.user.update({
       where: { id },
       data: { disabledAt: new Date(), deletedAt: new Date() },
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
 
     await this.redis.del('users')
@@ -234,7 +259,15 @@ export class UserRedisRepository implements UserRepository {
     if (cached) {
       users = JSON.parse(cached)
     } else {
-      users = await tx.user.findMany({ include: this.include })
+      users = await tx.user.findMany({
+        include: {
+          Address: true,
+          Purchases: true,
+          Assessments: true,
+          Permissions: { where: { deletedAt: null, disabledAt: null } },
+          Conversations: true
+        }
+      })
     }
 
     await this.redis.set('users', JSON.stringify(users))

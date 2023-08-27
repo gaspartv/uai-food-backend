@@ -11,19 +11,20 @@ import { UserRepository } from '../user.repository'
 
 @Injectable()
 export class UserPrismaRepository implements UserRepository {
-  private include = {
-    Address: true,
-    Purchases: true,
-    Assessments: true,
-    Permissions: { where: { deletedAt: null, disabledAt: null } },
-    Conversations: true
-  }
-
   async createUser(
     tx: PrismaClientTransaction,
     data: Prisma.UserUncheckedCreateInput
   ): Promise<UserEntity> {
-    return await tx.user.create({ data, include: this.include })
+    return await tx.user.create({
+      data,
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
+    })
   }
 
   async updateUserById(
@@ -31,7 +32,17 @@ export class UserPrismaRepository implements UserRepository {
     id: string,
     data: Prisma.UserUncheckedUpdateInput
   ): Promise<UserEntity> {
-    return await tx.user.update({ where: { id }, data, include: this.include })
+    return await tx.user.update({
+      where: { id },
+      data,
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
+    })
   }
 
   async findUserByEmail(
@@ -41,7 +52,13 @@ export class UserPrismaRepository implements UserRepository {
   ): Promise<UserEntity> {
     return await tx.user.findFirst({
       where: { ...whereGenerator(options), email },
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
   }
 
@@ -52,7 +69,13 @@ export class UserPrismaRepository implements UserRepository {
   ): Promise<UserEntity> {
     return await tx.user.findFirst({
       where: { ...whereGenerator(options), login },
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
   }
 
@@ -63,7 +86,13 @@ export class UserPrismaRepository implements UserRepository {
   ): Promise<UserEntity> {
     return await tx.user.findFirst({
       where: { ...whereGenerator(options), id },
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
   }
 
@@ -84,7 +113,13 @@ export class UserPrismaRepository implements UserRepository {
       where: { ...whereGenerator(options) },
       skip,
       take,
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
   }
 
@@ -94,7 +129,13 @@ export class UserPrismaRepository implements UserRepository {
   ): Promise<UserEntity[]> {
     return await tx.user.findMany({
       where: { ...whereGenerator(options) },
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
   }
 
@@ -105,7 +146,13 @@ export class UserPrismaRepository implements UserRepository {
     return await tx.user.update({
       where: { id },
       data: { disabledAt: new Date() },
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
   }
 
@@ -116,7 +163,13 @@ export class UserPrismaRepository implements UserRepository {
     return await tx.user.update({
       where: { id },
       data: { disabledAt: null },
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
   }
 
@@ -127,7 +180,13 @@ export class UserPrismaRepository implements UserRepository {
     return await tx.user.update({
       where: { id },
       data: { disabledAt: new Date(), deletedAt: new Date() },
-      include: this.include
+      include: {
+        Address: true,
+        Purchases: true,
+        Assessments: true,
+        Permissions: { where: { deletedAt: null, disabledAt: null } },
+        Conversations: true
+      }
     })
   }
 }

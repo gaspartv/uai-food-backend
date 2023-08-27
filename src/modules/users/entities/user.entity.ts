@@ -18,9 +18,9 @@ export class UserWithNotRelationsEntity {
   email: string
   login: string
   phone: string
-  password_hash: string
+  passwordHash: string
   imageUri?: string
-  dark_mode: boolean
+  darkMode: boolean
   language: ELanguage
   createdAt: Date
   updatedAt: Date

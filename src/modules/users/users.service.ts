@@ -40,14 +40,14 @@ export class UsersService {
 
     const addressCreate = await this.addressesService.createAddress(tx, address)
 
-    const password_hash = await hash(
+    const passwordHash = await hash(
       password,
       Number(this.envService.env.HASH_SALT)
     )
 
     return await this.userRepository.createUser(tx, {
       ...data,
-      password_hash,
+      passwordHash,
       addressId: addressCreate.id
     })
   }

@@ -16,7 +16,7 @@ export class ResponseUserDto {
   email: string
   phone: string
   imageUri?: string
-  dark_mode: boolean
+  darkMode: boolean
   language: ELanguage
   createdAt: Date
   updatedAt: Date
