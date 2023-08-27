@@ -17,17 +17,17 @@ import { load } from './config/env/load.env'
 import { EnvService } from './config/env/service.env'
 import { validate } from './config/env/validate.env'
 import { PrismaModule } from './config/prisma/prisma.module'
-import { RedisService } from './config/redis/redis.service'
+import { RedisModule } from './config/redis/redis.modules'
 import { AddressesModule } from './modules/addresses/addresses.module'
 import { AssessmentsModule } from './modules/assessments/assessments.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { CategoriesModule } from './modules/categories/categories.module'
+import { ConversationModule } from './modules/conversation/conversation.module'
 import { PermissionsModule } from './modules/permissions/permissions.module'
 import { PurchasesModule } from './modules/purchases/purchases.module'
 import { SessionsModule } from './modules/sessions/sessions.module'
 import { StoresModule } from './modules/stores/stores.module'
 import { UsersModule } from './modules/users/users.module'
-import { ConversationModule } from './modules/conversation/conversation.module';
 
 @Module({
   imports: [
@@ -59,7 +59,8 @@ import { ConversationModule } from './modules/conversation/conversation.module';
     PermissionsModule,
     AuthModule,
     SessionsModule,
-    ConversationModule
+    ConversationModule,
+    RedisModule
   ],
   controllers: [],
   providers: [
@@ -68,7 +69,6 @@ import { ConversationModule } from './modules/conversation/conversation.module';
     { provide: APP_GUARD, useClass: CheckPasswordGuard },
     { provide: APP_PIPE, useClass: ValidationPipe },
     EnvService,
-    RedisService,
     JwtStrategy
   ],
   exports: [JwtStrategy]

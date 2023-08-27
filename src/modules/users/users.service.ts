@@ -38,7 +38,7 @@ export class UsersService {
       disabledAt: undefined
     })
 
-    const addressCreate = await this.addressesService.create(tx, address)
+    const addressCreate = await this.addressesService.createAddress(tx, address)
 
     const password_hash = await hash(
       password,

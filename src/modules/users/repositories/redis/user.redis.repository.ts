@@ -60,10 +60,10 @@ export class UserRedisRepository implements UserRepository {
   ): Promise<UserEntity | null> {
     let user: UserEntity
 
-    const cached = await this.redis.get('users')
+    const cachedUsers = await this.redis.get('users')
 
-    if (cached) {
-      const users: UserEntity[] = JSON.parse(cached)
+    if (cachedUsers) {
+      const users: UserEntity[] = JSON.parse(cachedUsers)
       user = filterOptions(users, options).find(
         (user: UserEntity) => user.email === email
       )
@@ -85,10 +85,10 @@ export class UserRedisRepository implements UserRepository {
   ): Promise<UserEntity> {
     let user: UserEntity
 
-    const cached = await this.redis.get('users')
+    const cachedUsers = await this.redis.get('users')
 
-    if (cached) {
-      const users: UserEntity[] = JSON.parse(cached)
+    if (cachedUsers) {
+      const users: UserEntity[] = JSON.parse(cachedUsers)
 
       const usersFind = users.find((user) => user.login === login)
 
@@ -117,10 +117,10 @@ export class UserRedisRepository implements UserRepository {
       return JSON.parse(cachedUser)
     }
 
-    const cached = await this.redis.get('users')
+    const cachedUsers = await this.redis.get('users')
 
-    if (cached) {
-      const users: UserEntity[] = JSON.parse(cached)
+    if (cachedUsers) {
+      const users: UserEntity[] = JSON.parse(cachedUsers)
 
       user = filterOptions(users, options).find(
         (user: UserEntity) => user.id === id
@@ -156,20 +156,20 @@ export class UserRedisRepository implements UserRepository {
 
     if (cached) {
       users = JSON.parse(cached)
-    } else {
-      users = await tx.user.findMany({ include: this.include })
+
+      return filterOptions(users, options)
     }
+
+    users = await tx.user.findMany({ include: this.include })
 
     await this.redis.set('users', JSON.stringify(users))
 
-    return filterOptions(users, options)
-
-    // return await tx.user.findMany({
-    //   where: { ...whereGenerator(options) },
-    //   skip,
-    //   take,
-    //   include: this.include
-    // })
+    return await tx.user.findMany({
+      where: { ...whereGenerator(options) },
+      skip,
+      take,
+      include: this.include
+    })
   }
 
   async disableUserById(
